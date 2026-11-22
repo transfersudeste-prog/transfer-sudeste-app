@@ -47,6 +47,17 @@
 .driver-admin-tabs{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:7px;margin:18px 0 12px}.driver-admin-tabs button{border:1px solid #675435;background:#171614;color:#d4bd8b;border-radius:11px;padding:12px 4px;font-size:12px;font-weight:750}.driver-admin-tabs button.selected{background:#d6b46c;color:#15120c}.driver-admin-tabs span{display:inline-block;min-width:18px;padding:2px 4px;border-radius:7px;background:#3a3020;color:#f0d69c}.driver-admin-tabs .selected span{background:#97753d;color:white}
 #driverAdminApps .driver-application{background:#171717;border:1px solid #554830;padding:16px;border-radius:15px;margin:10px 0}#driverAdminApps .driver-open{display:block;width:100%;text-align:left;border:0;background:transparent;color:#f6f2e9;padding:0;font-weight:800;font-size:18px;overflow-wrap:anywhere}#driverAdminApps .driver-meta{font-size:13px;color:#bcb5a8;margin:10px 0;line-height:1.6}#driverAdminApps .driver-state{font-size:12px;color:#e0c487;font-weight:750}#driverAdminApps .driver-card-actions{display:flex;gap:8px;margin-top:14px}#driverAdminApps .driver-card-actions button{margin:0;flex:1;min-width:0;font-size:13px;padding:12px 7px}#driverAdminApps .driver-card-actions .back{flex:0 0 auto}
 .driver-detail-dialog{max-height:min(86dvh,780px);overflow:auto}.driver-modal-head{display:flex;align-items:center;justify-content:space-between;gap:10px}.driver-modal-head h2{margin:0}.driver-modal-head button{width:auto!important;margin:0!important;padding:9px 12px!important}.driver-detail-section{margin:20px 0}.driver-detail-section h3{font-size:13px;color:#d6b46c;letter-spacing:.08em;text-transform:uppercase}.driver-detail-field{display:grid;grid-template-columns:minmax(95px,38%) minmax(0,1fr);gap:10px;padding:11px 0;border-bottom:1px solid #3d372d;font-size:13px;overflow-wrap:anywhere}.driver-detail-field b{color:#c8b68d}.driver-detail-media{display:grid;grid-template-columns:1fr 1fr;gap:10px}.driver-detail-media img{width:100%;height:140px;object-fit:cover;border:1px solid #675435;border-radius:12px}.driver-detail-media small{display:block;color:#c8b68d;margin:5px 0}.driver-confirm-actions{display:flex;gap:9px;margin-top:20px}.driver-confirm-actions button{flex:1;min-width:0;margin:0!important;padding:14px 8px!important}.driver-detail-actions{display:flex;gap:10px;margin-top:15px}.driver-detail-actions button{flex:1;min-width:0}
+</style><style>
+.ts-admin-tabs{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:9px;margin:12px 0 24px}
+.ts-admin-tabs button{background:#181715;color:#d8bb7b;border:1px solid #79623a;border-radius:12px;padding:15px 8px;font:inherit;font-weight:700;cursor:pointer}
+.ts-admin-tabs button.selected{background:#d7b56e;color:#14110b}
+.ts-admin-section>h2{margin:12px 0}
+.ts-admin-shortcuts{display:flex;flex-wrap:wrap;gap:10px;margin:18px 0}
+.ts-admin-shortcuts button{margin:0}
+.ts-admin-section.hidden{display:none!important}
+.ts-finance-overview{margin:18px 0;display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:12px}
+.ts-finance-overview .ts-kpi{min-width:0}
+@media(max-width:600px){.ts-admin-tabs{grid-template-columns:repeat(2,minmax(0,1fr))}.ts-admin-tabs button{font-size:14px;padding:13px 7px}}
 </style></head><body><div class="app"><header class="top"><div><div class="brand"><img class="brand-logo" src="apple-touch-icon.png" alt="Logo Transfer Sudeste"><span>TRANSFER SUDESTE</span></div><div class="tag">TRANSPORTE EXCLUSIVO</div></div><button class="install" id="accountButton" type="button">Entrar</button><button class="install" id="install">Instalar app</button></header><section class="view active" id="home">
 
 <div class="card wizard-card" id="wizardCard"><div class="line"><b id="stepLabel">Etapa 1 de 4</b><span id="stepName">Serviço</span></div><div class="wizard-progress" id="progress"><i class="done"></i><i></i><i></i><i></i></div>
@@ -78,12 +89,43 @@
 <div class="wizard-actions"><button id="prevStep" class="back hidden" type="button">Voltar</button><button id="nextStep" class="primary" type="button">Continuar</button></div>
 </div>
 </section><section class="view" id="conta"><div class="card wizard-card auth-card"><h2>Minha conta</h2><p class="step-sub">Acesse suas reservas com segurança.</p><div id="authSigned" class="hidden"><p id="authUser"></p><div id="routeTestPanel" class="hidden" style="margin:16px 0;padding:14px;border:1px solid #806b3b;border-radius:12px"><strong style="color:#d9c18c">Diagnóstico de rota (temporário)</strong><p class="soft-note">Teste autenticado Niterói → Aeroporto Santos Dumont. Não registra reservas ou pagamentos.</p><button type="button" class="back" id="routeTestRun">Testar validação de rota</button><p id="routeTestResult" role="status" style="white-space:pre-wrap;overflow-wrap:anywhere"></p></div><button type="button" class="back" id="signOut">Sair da conta</button></div><div id="authForms"><div class="auth-tabs"><button type="button" id="tabLogin" class="selected">Entrar</button><button type="button" id="tabSignup">Criar conta</button></div><label for="authEmail">E-mail</label><input id="authEmail" type="email" autocomplete="email" placeholder="voce@exemplo.com"><label for="authPassword">Senha</label><input id="authPassword" type="password" autocomplete="current-password" minlength="6" placeholder="Mínimo de 6 caracteres"><button type="button" class="primary" id="authSubmit">Entrar</button><button type="button" class="back" id="authRecover">Esqueci minha senha</button></div><div id="authReset" class="hidden"><p>Defina sua nova senha para recuperar o acesso.</p><label for="authNewPassword">Nova senha</label><input id="authNewPassword" type="password" minlength="6" autocomplete="new-password"><button type="button" class="primary" id="authSavePassword">Salvar nova senha</button></div><div class="auth-feedback" id="authFeedback" role="status"></div><button type="button" class="back" id="authBack">Voltar ao aplicativo</button></div></section><section class="view" id="pagamento"><div class="card wizard-card"><h2>Pagamento do sinal via PIX</h2><p class="step-sub">O pagamento será orientado após a confirmação do orçamento.</p><p class="soft-note">Sinal previsto (30%)</p><div class="payment-amount" id="paymentAmount">—</div><div class="payment-panel hidden"><b>Dados para pagamento</b><p><strong>Chave PIX (telefone)</strong><br><span id="pixKey">21997623931</span><br><button type="button" id="copyPix" class="back pix-copy">Copiar chave PIX</button><span id="pixCopyStatus" class="soft-note" role="status"></span></p><p><strong>Recebedor:</strong> Gustavo Augusto Gonçalves<br><strong>Banco:</strong> C6 Bank</p><p>Confira o nome do recebedor no aplicativo do seu banco antes de pagar. O agendamento só será confirmado após a verificação do pagamento pela Transfer Sudeste.</p></div><div class="payment-actions"><button class="back payment-back" id="paymentBack" type="button">Editar formulário</button><button class="primary payment-back" id="paymentDone" type="button">Concluir</button></div></div></section><section class="view" id="politicas"><div class="card policy-section"><h1>Políticas de agendamento</h1><p>Transfer Sudeste | Transporte Exclusivo</p><h2>1. Solicitação e confirmação</h2><p>O envio da solicitação e a apresentação de um orçamento não garantem a reserva. O agendamento será confirmado após a validação da disponibilidade, dos dados do serviço e do pagamento do sinal.</p><h2>2. Sinal e pagamento</h2><p>Para os orçamentos apresentados neste aplicativo, o sinal previsto é de 30% e o saldo de 70% deverá ser pago ao final do serviço. A forma e os dados oficiais para pagamento serão apresentados no processo de confirmação.</p><h2>3. Cancelamento</h2><p>Solicitações de cancelamento feitas com pelo menos 48 horas de antecedência do horário agendado dão direito à devolução integral do sinal. Com menos de 48 horas, o sinal poderá ser retido, conforme a política de cancelamento acordada.</p><h2>4. Reagendamento</h2><p>Pedidos de alteração de data, horário, itinerário ou local dependem de disponibilidade e poderão exigir recálculo do orçamento. As condições específicas serão informadas antes da confirmação da alteração.</p><h2>5. Não comparecimento (no-show)</h2><p>Em caso de não comparecimento sem cancelamento dentro do prazo, o sinal poderá ser retido. O ponto de encontro e as instruções de apresentação serão informados na confirmação.</p><h2>6. Informações do trajeto</h2><p>O valor automático é uma estimativa, não uma cobrança aprovada, e pode exigir revisão quando houver alterações de percurso ou informações incompletas. Mapa ilustrativo do trajeto; não representa necessariamente o traçado rodoviário que será utilizado.</p><h2>7. Atendimento</h2><p>Dúvidas, cancelamentos e pedidos de reagendamento devem ser encaminhados ao atendimento oficial da Transfer Sudeste.</p><p class="soft-note">As condições específicas do serviço deverão ser confirmadas antes da efetivação da reserva.</p><button id="policiesBack" class="back payment-back" type="button">Voltar ao agendamento</button></div></section><section class="view" id="reservas"><div class="hero"><h1>Agendamentos</h1><p class="sub">Acompanhe suas solicitações e o status de cada reserva.</p></div><div id="bookingList" class="card wizard-card"><p>Entre na sua conta para consultar suas reservas.</p></div></section><section class="view" id="administracao">
- <div class="ts-dashboard">
-  <div class="ts-dash-head"><div><div class="ts-eyebrow">TRANSFER SUDESTE · CENTRAL DE OPERAÇÕES</div><h1>Visão geral</h1><p>Reservas, atendimento e controle financeiro em um só lugar.</p></div><button class="ts-refresh" type="button" id="adminRefresh" aria-label="Atualizar dados">↻ <span>Atualizar</span></button></div>
-  <div class="ts-kpis" id="adminKpis" aria-live="polite"></div>
-<div class="ts-panel" id="driverAdminPanel"><div class="ts-section-title"><div><div class="ts-eyebrow">EQUIPE</div><h2>Motoristas e aprovações</h2></div></div><div id="driverAdminInvite"><strong>Convidar motorista</strong><p class="soft-note">Informe o e-mail do motorista. O convite será válido por 24 horas.</p><input id="driverAdminPhone" type="email" placeholder="motorista@exemplo.com" autocomplete="email"><button type="button" class="primary" id="driverAdminCreate">Gerar convite</button><p id="driverAdminInviteResult" class="invite-link" role="status"></p></div><button type="button" class="back" id="driverAdminRefresh">Atualizar cadastros</button><div class="driver-admin-tabs" role="tablist" aria-label="Filtrar motoristas"><button type="button" class="selected" data-driver-filter="pending">Pendentes <span id="driverPendingCount">0</span></button><button type="button" data-driver-filter="approved">Aprovados <span id="driverApprovedCount">0</span></button><button type="button" data-driver-filter="all">Todos</button></div><div id="driverAdminApps" aria-live="polite"></div></div>  <div class="ts-panel"><div class="ts-section-title"><div><div class="ts-eyebrow">OPERAÇÃO</div><h2>Gestão de reservas</h2></div><span class="ts-count" id="adminCount">—</span></div>
+ <div class="ts-dashboard ts-admin-v28">
+<div class="ts-dash-head"><div><div class="ts-eyebrow">TRANSFER SUDESTE · CENTRAL DE OPERAÇÕES</div><h1>Visão geral</h1><p>Reservas, atendimento e controle financeiro em um só lugar.</p></div><button class="ts-refresh" type="button" id="adminRefresh" aria-label="Atualizar dados">↻ <span>Atualizar</span></button></div>
+  
+  <nav class="ts-admin-tabs" aria-label="Áreas da gestão">
+    <button type="button" class="selected" data-admin-tab="overview" aria-pressed="true">Visão geral</button>
+    <button type="button" data-admin-tab="reservations" aria-pressed="false">Reservas</button>
+    <button type="button" data-admin-tab="drivers" aria-pressed="false">Motoristas</button>
+    <button type="button" data-admin-tab="finance" aria-pressed="false">Financeiro</button>
+  </nav>
+  <div class="ts-admin-section" data-admin-section="overview">
+    <h2>Resumo da operação</h2>
+    <p class="soft-note">Indicadores atualizados a partir das reservas registradas.</p>
+<div class="ts-kpis" id="adminKpis" aria-live="polite"></div>
+    <div class="ts-admin-shortcuts">
+      <button type="button" class="back" data-admin-jump="reservations">Gerenciar reservas</button>
+      <button type="button" class="back" data-admin-jump="drivers">Gerenciar motoristas</button>
+      <button type="button" class="back" data-admin-jump="finance">Consultar financeiro</button>
+    </div>
+  </div>
+  <div class="ts-admin-section hidden" data-admin-section="reservations">
+  <div class="ts-panel"><div class="ts-section-title"><div><div class="ts-eyebrow">OPERAÇÃO</div><h2>Gestão de reservas</h2></div><span class="ts-count" id="adminCount">—</span></div>
    <div class="ts-controls"><label class="ts-search-wrap"><span aria-hidden="true">⌕</span><input id="adminSearch" type="search" placeholder="Buscar cliente, destino ou reserva" autocomplete="off" aria-label="Buscar reservas"></label><select id="adminFilter" aria-label="Filtrar reservas"><option value="all">Todas as situações</option><option value="pending">Pendentes</option><option value="confirmed">Confirmadas</option><option value="completed">Concluídas</option><option value="cancelled">Canceladas</option></select></div>
    <p class="ts-list-caption" id="adminSummary">Carregando dados…</p><div id="adminBookings" aria-live="polite">Aguardando acesso administrativo.</div>
+  </div>
+ 
+  </div>
+  <div class="ts-admin-section hidden" data-admin-section="drivers">
+<div class="ts-panel" id="driverAdminPanel"><div class="ts-section-title"><div><div class="ts-eyebrow">EQUIPE</div><h2>Motoristas e aprovações</h2></div></div><div id="driverAdminInvite"><strong>Convidar motorista</strong><p class="soft-note">Informe o e-mail do motorista. O convite será válido por 24 horas.</p><input id="driverAdminPhone" type="email" placeholder="motorista@exemplo.com" autocomplete="email"><button type="button" class="primary" id="driverAdminCreate">Gerar convite</button><p id="driverAdminInviteResult" class="invite-link" role="status"></p></div><button type="button" class="back" id="driverAdminRefresh">Atualizar cadastros</button><div class="driver-admin-tabs" role="tablist" aria-label="Filtrar motoristas"><button type="button" class="selected" data-driver-filter="pending">Pendentes <span id="driverPendingCount">0</span></button><button type="button" data-driver-filter="approved">Aprovados <span id="driverApprovedCount">0</span></button><button type="button" data-driver-filter="all">Todos</button></div><div id="driverAdminApps" aria-live="polite"></div></div>
+  </div>
+  <div class="ts-admin-section hidden" data-admin-section="finance">
+    <div class="ts-panel">
+      <div class="ts-eyebrow">FINANCEIRO</div>
+      <h2>Controle financeiro</h2>
+      <p class="soft-note">Consulte os valores contratados e a situação de pagamento nas reservas. Os valores são os registrados no sistema.</p>
+      <div id="adminFinanceSummary" class="ts-finance-overview"></div>
+      <button type="button" class="back" data-admin-jump="reservations">Ver reservas e pagamentos</button>
+    </div>
   </div>
  </div>
 </section><section class="view" id="motoristaConvite"><div class="driver-card"><div class="ts-eyebrow">TRANSFER SUDESTE · MOTORISTAS</div><h1>Cadastro de motorista</h1><p id="driverInviteIntro">Validando convite…</p><div class="driver-progress" id="driverProgress"><i class="on"></i><i></i><i></i><i></i></div>
@@ -137,7 +179,7 @@ const esc=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&
 let session=null,mode='login',afterLogin=null,authBusy=false,bookingBusy=false;
 const tokenKey='ts-supabase-session';
 function feedback(t){$('authFeedback').textContent=t}
-function messageError(err){const t=String(err?.message||err||'Erro desconhecido');if(/Invalid login credentials/i.test(t))return 'E-mail ou senha incorretos.';if(/Email not confirmed/i.test(t))return 'Confirme seu e-mail pelo link recebido antes de entrar.';if(/User already registered/i.test(t))return 'Este e-mail já possui uma conta.';if(/Password should be/i.test(t))return 'Escolha uma senha mais forte.';return t}
+function messageError(err){const t=String(err?.message||err||'Erro desconhecido');if(/Invalid login credentials/i.test(t))return 'E-mail ou senha incorretos.';if(/Email not confirmed/i.test(t))return 'Confirme seu e-mail pelo link recebido antes de entrar.';if(/User already registered/i.test(t))return 'Este e-mail já possui uma conta.';if(/Password should be/i.test(t))return 'Senha rejeitada pelas regras de senha do Supabase. Verifique Authentication → Settings → Password Security.';return t}
 async function req(path,opts={}){const r=await fetch(BASE+path,{...opts,headers:{apikey:KEY,'Content-Type':'application/json',...(opts.headers||{})}});const raw=await r.text();let j;try{j=raw?JSON.parse(raw):{}}catch{j={message:raw}}if(!r.ok)throw Error(j.msg||j.error_description||j.message||j.error||`Erro HTTP ${r.status}`);return j}
 function setSession(s){session=s?.access_token?s:null;if(session)localStorage.setItem(tokenKey,JSON.stringify(session));else localStorage.removeItem(tokenKey);renderAuth()}
 async function current(){if(!session)return null;if(session.expires_at&&Date.now()/1000>session.expires_at-60){try{const s=await req('/auth/v1/token?grant_type=refresh_token',{method:'POST',body:JSON.stringify({refresh_token:session.refresh_token})});setSession({...s,expires_at:Math.floor(Date.now()/1000)+s.expires_in})}catch{setSession(null);return null}}return session}
@@ -145,7 +187,7 @@ function renderAuth(){const logged=!!session?.user;$('accountButton').textConten
 function selectMode(m){mode=m;$('tabLogin').classList.toggle('selected',m==='login');$('tabSignup').classList.toggle('selected',m==='signup');$('authSubmit').textContent=m==='login'?'Entrar':'Criar conta';$('authPassword').autocomplete=m==='login'?'current-password':'new-password';feedback('')}
 function openAuth(callback=null){afterLogin=callback;$('authReset').classList.add('hidden');window.tsNavigate('conta');renderAuth()}
 $('accountButton').onclick=()=>openAuth();$('authBack').onclick=()=>window.tsNavigate('home');$('tabLogin').onclick=()=>selectMode('login');$('tabSignup').onclick=()=>selectMode('signup');
-$('authSubmit').onclick=async()=>{if(authBusy)return;const email=$('authEmail').value.trim(),password=$('authPassword').value;if(!email||!password){feedback('Informe e-mail e senha.');return}authBusy=true;$('authSubmit').disabled=true;feedback('Aguarde…');try{if(mode==='signup'){const result=await req('/auth/v1/signup',{method:'POST',body:JSON.stringify({email,password})});if(result.access_token){setSession({...result,expires_at:Math.floor(Date.now()/1000)+result.expires_in});feedback('Conta criada.')}else feedback('Cadastro recebido. Confira sua caixa de entrada e confirme o e-mail antes de entrar.')}else{const result=await req('/auth/v1/token?grant_type=password',{method:'POST',body:JSON.stringify({email,password})});setSession({...result,expires_at:Math.floor(Date.now()/1000)+result.expires_in});const driverState=await req('/rest/v1/rpc/driver_access_status',{method:'POST',headers:{Authorization:'Bearer '+result.access_token},body:'{}'}).catch(()=>null);if(['pending','approved','rejected','disabled'].includes(driverState)){await driverRouteAfterLogin(driverState);feedback('Login realizado.');return}feedback('Login realizado.');const cb=afterLogin;afterLogin=null;if(cb){window.tsNavigate('home');await cb()}else window.tsNavigate('reservas')}}catch(e){feedback(messageError(e))}finally{authBusy=false;$('authSubmit').disabled=false}};
+$('authSubmit').onclick=async()=>{if(authBusy)return;const email=$('authEmail').value.trim(),password=$('authPassword').value;if(!email||!password){feedback('Informe e-mail e senha.');return}authBusy=true;$('authSubmit').disabled=true;feedback('Aguarde…');try{if(mode==='signup'){const result=await req('/auth/v1/signup',{method:'POST',body:JSON.stringify({email,password})});if(result.access_token){setSession({...result,expires_at:Math.floor(Date.now()/1000)+result.expires_in});feedback('Conta criada.')}else feedback('Cadastro recebido. Confira sua caixa de entrada e confirme o e-mail antes de entrar.')}else{const result=await req('/auth/v1/token?grant_type=password',{method:'POST',body:JSON.stringify({email,password})});setSession({...result,expires_at:Math.floor(Date.now()/1000)+result.expires_in});const driverState=await req('/rest/v1/rpc/driver_access_status',{method:'POST',headers:{Authorization:'Bearer '+result.access_token},body:'{}'}).catch(()=>null);if(['pending','approved','rejected','disabled'].includes(driverState)&&(await driverIsExclusive(result.access_token))){await driverRouteAfterLogin(driverState);feedback('Login realizado.');return}feedback('Login realizado.');const cb=afterLogin;afterLogin=null;if(cb){window.tsNavigate('home');await cb()}else window.tsNavigate('reservas')}}catch(e){feedback(messageError(e))}finally{authBusy=false;$('authSubmit').disabled=false}};
 $('signOut').onclick=async()=>{const s=await current();if(s)req('/auth/v1/logout',{method:'POST',headers:{Authorization:'Bearer '+s.access_token}}).catch(()=>{});setSession(null);window.tsNavigate('home')};
 $('authRecover').onclick=async()=>{const email=$('authEmail').value.trim();if(!email){feedback('Digite seu e-mail para receber o link de recuperação.');return}try{await req('/auth/v1/recover?redirect_to='+encodeURIComponent(location.origin+location.pathname),{method:'POST',body:JSON.stringify({email})});feedback('Se o e-mail estiver cadastrado, você receberá instruções de recuperação.')}catch(e){feedback(messageError(e))}};
 $('authSavePassword').onclick=async()=>{const pass=$('authNewPassword').value;if(pass.length<6){feedback('A nova senha precisa ter pelo menos 6 caracteres.');return}try{const s=await current();if(!s)throw Error('Link expirado. Solicite outro link de recuperação.');await req('/auth/v1/user',{method:'PUT',headers:{Authorization:'Bearer '+s.access_token},body:JSON.stringify({password:pass})});$('authReset').classList.add('hidden');feedback('Senha atualizada com sucesso.')}catch(e){feedback(messageError(e))}};
@@ -338,10 +380,30 @@ $('driverAdminApps').onclick=e=>{const review=e.target.closest('[data-driver-rev
 $('driverDetailActions').onclick=e=>{const b=e.target.closest('[data-driver-review]');if(b)driverConfirmOpen(b.dataset.driverReview,b.dataset.approve==='true')};
 const oldAdminNav=window.tsNavigate;window.tsNavigate=id=>{oldAdminNav(id);if(id==='administracao')driverAdminLoad()};
 // V26: credenciais, troca inicial de senha e área exclusiva.
+async function driverIsExclusive(token){
+ try{
+  return (await req('/rest/v1/rpc/is_exclusive_driver_account',{
+   method:'POST',headers:{Authorization:'Bearer '+token},body:'{}'
+  }))===true;
+ }catch(e){
+  console.warn('Não foi possível confirmar perfil exclusivo de motorista',e);
+  return false;
+ }
+}
+async function driverNeedsPasswordChange(token){
+ if(!(await driverIsExclusive(token)))return false;
+ const rows=await req('/rest/v1/profiles?select=must_change_password&limit=1',{
+  headers:{Authorization:'Bearer '+token}
+ }).catch(()=>[]);
+ if(!Array.isArray(rows)||!rows[0]?.must_change_password)return false;
+ const user=await req('/auth/v1/user',{headers:{Authorization:'Bearer '+token}});
+ return !user.user_metadata?.driver_password_changed;
+}
 async function driverRouteAfterLogin(status){
+ $('driverChangeModal').classList.add('hidden');
  const s=await current();if(!s)return;
- const user=await req('/auth/v1/user',{headers:{Authorization:'Bearer '+s.access_token}});
- if(!user.user_metadata?.driver_password_changed){$('driverChangeModal').classList.remove('hidden');return}
+ if(!(await driverIsExclusive(s.access_token))){$('driverChangeModal').classList.add('hidden');return;}
+ if(await driverNeedsPasswordChange(s.access_token)){$('driverChangeModal').classList.remove('hidden');return}
  driverShowPanel(status);
 }
 let driverRoleState=null;
@@ -358,9 +420,38 @@ $('driverCredentialLogin').onclick=()=>{$('driverCredentialsModal').classList.ad
 $('driverChangeSubmit').onclick=async()=>{const pass=$('driverChangePassword').value,confirmPass=$('driverChangeConfirm').value,btn=$('driverChangeSubmit');if(pass.length<6||pass!==confirmPass){$('driverChangeFeedback').textContent='Informe uma senha de pelo menos 6 caracteres e confirme corretamente.';return}btn.disabled=true;try{const s=await current();if(!s)throw Error('Sessão expirada. Faça login novamente.');await req('/auth/v1/user',{method:'PUT',headers:{Authorization:'Bearer '+s.access_token},body:JSON.stringify({password:pass,data:{driver_password_changed:true}})});$('driverChangeModal').classList.add('hidden');const status=await req('/rest/v1/rpc/driver_access_status',{method:'POST',headers:{Authorization:'Bearer '+s.access_token},body:'{}'});driverShowPanel(status)}catch(e){$('driverChangeFeedback').textContent=messageError(e)}finally{btn.disabled=false}};
 $('driverPanelSignOut').onclick=()=>{driverRoleState=null;document.querySelectorAll('.nav button[data-page]').forEach(b=>b.classList.remove('hidden'));$('signOut').click()};
 const driverBaseNavigate=window.tsNavigate;window.tsNavigate=id=>{if(driverRoleState&&['home','reservas','contato'].includes(id))id='motoristaPainel';driverBaseNavigate(id)};
-async function restoreDriverArea(){if(inviteToken)return;const s=await current();if(!s)return;try{const status=await req('/rest/v1/rpc/driver_access_status',{method:'POST',headers:{Authorization:'Bearer '+s.access_token},body:'{}'});if(['pending','approved','rejected','disabled'].includes(status)){const user=await req('/auth/v1/user',{headers:{Authorization:'Bearer '+s.access_token}});if(!user.user_metadata?.driver_password_changed){$('driverChangeModal').classList.remove('hidden')}else driverShowPanel(status)}}catch(e){console.warn('Não foi possível restaurar a área do motorista',e)}}
+async function restoreDriverArea(){$('driverChangeModal').classList.add('hidden');if(inviteToken)return;const s=await current();if(!s)return;try{const status=await req('/rest/v1/rpc/driver_access_status',{method:'POST',headers:{Authorization:'Bearer '+s.access_token},body:'{}'});if(['pending','approved','rejected','disabled'].includes(status)&&(await driverIsExclusive(s.access_token))){if(await driverNeedsPasswordChange(s.access_token)){$('driverChangeModal').classList.remove('hidden')}else driverShowPanel(status)}}catch(e){console.warn('Não foi possível restaurar a área do motorista',e)}}
 if(inviteToken)setTimeout(driverOpenInvite,0);
 
 try{const old=JSON.parse(localStorage.getItem(tokenKey)||'null');if(old?.access_token)setSession(old)}catch{}renderAuth();handleAuthRedirect();restoreDriverArea();
+})();
+</script><script>
+(function(){
+  function openAdminTab(tab){
+    document.querySelectorAll('[data-admin-section]').forEach(function(el){
+      el.classList.toggle('hidden',el.dataset.adminSection!==tab);
+    });
+    document.querySelectorAll('[data-admin-tab]').forEach(function(el){
+      var active=el.dataset.adminTab===tab;
+      el.classList.toggle('selected',active);
+      el.setAttribute('aria-pressed',String(active));
+    });
+    var heading=document.querySelector('#administracao .ts-dash-head h1');
+    if(heading) heading.textContent=({overview:'Visão geral',reservations:'Reservas',drivers:'Motoristas',finance:'Financeiro'})[tab];
+    if(tab==='finance') {
+      var summary=document.getElementById('adminFinanceSummary');
+      var cards=[...document.querySelectorAll('#adminKpis .ts-kpi')];
+      if(summary) summary.innerHTML=cards.filter(function(card){
+        return /valor|recebid|pagament|financeir|sinal|saldo/i.test(card.textContent);
+      }).map(function(card){return card.outerHTML}).join('') || '<p class="soft-note">Os indicadores financeiros estarão disponíveis após carregar as reservas.</p>';
+    }
+  }
+  document.querySelectorAll('[data-admin-tab]').forEach(function(el){
+    el.addEventListener('click',function(){openAdminTab(el.dataset.adminTab)});
+  });
+  document.querySelectorAll('[data-admin-jump]').forEach(function(el){
+    el.addEventListener('click',function(){openAdminTab(el.dataset.adminJump)});
+  });
+  openAdminTab('overview');
 })();
 </script></body></html>
