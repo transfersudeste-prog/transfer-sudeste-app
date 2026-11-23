@@ -14,6 +14,24 @@
 .ts-assign-feedback.error{color:#ffb1a8}
 @media(min-width:650px){.ts-assign-controls{grid-template-columns:minmax(0,1fr) auto}}
 .ts-share-booking{display:inline-flex;align-items:center;gap:8px;border:1px solid #c9a25c;color:#e6c98e;background:transparent;border-radius:9px;padding:10px 14px;font-weight:700;cursor:pointer;margin-right:8px}
+
+/* V30.5 — refinamento de ações, seletores e calendário */
+#adminBookings .ts-booking-footer{display:flex!important;align-items:center!important;justify-content:flex-end!important;gap:9px!important;flex-wrap:nowrap!important}
+#adminBookings .ts-booking-footer .v292-open-admin{order:-1;display:inline-flex!important;align-items:center;justify-content:center;min-height:44px!important;height:46px!important;margin:0 auto 0 0!important;padding:8px 10px!important;font-size:12px!important;white-space:nowrap!important;flex:0 1 auto!important}
+#adminBookings .ts-booking-footer .ts304-edit-booking,#adminBookings .ts-booking-footer .ts-share-booking{flex:0 0 44px!important;width:44px!important;min-width:44px!important;height:46px!important}
+#adminBookings .ts-booking-footer .ts-delete-booking{height:46px!important;min-height:46px!important;white-space:nowrap!important;padding:8px 12px!important}
+@media(max-width:390px){#adminBookings .ts-booking-footer{gap:6px!important}#adminBookings .ts-booking-footer .v292-open-admin{font-size:11px!important;padding:7px 8px!important}#adminBookings .ts-booking-footer .ts304-edit-booking,#adminBookings .ts-booking-footer .ts-share-booking{flex-basis:40px!important;width:40px!important;min-width:40px!important}#adminBookings .ts-booking-footer .ts-delete-booking{font-size:12px!important;padding:8px!important}}
+select{appearance:none!important;-webkit-appearance:none!important;padding-right:40px!important;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='20' height='20' viewBox='0 0 24 24' fill='none' stroke='%23e0bd77' stroke-width='2.7' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='m7 10 5 5 5-5'/%3E%3C/svg%3E")!important;background-repeat:no-repeat!important;background-position:right 13px center!important;background-size:20px!important}
+select:disabled{opacity:.65}
+#tsCalGrid button.has-booking:after{display:none!important}
+#tsCalGrid button.has-booking{display:flex;flex-direction:column;justify-content:center;align-items:center;gap:0;line-height:1.1;padding:2px 0!important}
+#tsCalGrid button .ts305-count{display:inline-flex;align-items:center;justify-content:center;font-size:10px;line-height:1;min-width:15px;height:15px;padding:0 3px;border-radius:8px;background:#d9b66e;color:#1c160d;font-weight:850;margin-top:2px}
+#tsCalGrid button.ts305-count-one{background:#222;color:#f1eee9}
+#tsCalGrid button.ts305-count-mid{background:#b9954e;color:#17120a;border-color:#d9b66e;font-weight:800}
+#tsCalGrid button.ts305-count-high{background:#f0c76a;color:#141008;border-color:#ffe0a0;font-weight:850;box-shadow:inset 0 0 0 1px #ffe2a1}
+#tsCalGrid button.ts305-count-mid .ts305-count,#tsCalGrid button.ts305-count-high .ts305-count{background:#292117;color:#ffe0a0}
+#tsCalGrid button.active{outline:2px solid #fff;outline-offset:1px}
+
 </style>
 <style>
 .wizard-progress{display:flex;gap:6px;margin:16px 0 22px}.wizard-progress i{height:5px;flex:1;background:#353535;border-radius:10px}.wizard-progress i.done{background:#d6b46c}
@@ -431,10 +449,10 @@ function tsRenderAdmin(){
   <div class="v292-stops">${bookingStops(b.stops).map((st,i)=>`<small>Parada ${i+1}: ${esc(st.address||String(st))}</small>`).join('')}</div><div class="ts-finance"><div><small>VALOR TOTAL</small><strong>${esc(bookingMoney(b.total_amount))}</strong></div></div>
   ${tsDriverMini(b)}
   <div class="ts-assign"><p class="ts-assign-title">${b.driver_id?'Substituir ou retirar motorista':'Designar motorista'}</p>
-   <div class="ts-assign-controls"><select class="ts-assign-select" data-booking="${esc(id)}" aria-label="Motorista da reserva ${esc(shortId)}"><option value="">Sem motorista designado</option>${tsAdminDrivers.map(d=>`<option value="${esc(d.driver_id)}" ${d.driver_id===b.driver_id?'selected':''}>${esc(d.full_name||'Motorista')} ${d.phone?'· '+esc(d.phone):''}</option>`).join('')}</select><button type="button" class="ts-assign-save" data-booking="${esc(id)}">Salvar designação</button></div>
+   <div class="ts-assign-controls"><select class="ts-assign-select" data-booking="${esc(id)}" aria-label="Motorista da reserva ${esc(shortId)}"><option value="">Sem motorista designado</option>${tsAdminDrivers.map(d=>`<option value="${esc(d.driver_id)}" ${d.driver_id===b.driver_id?'selected':''}>${esc(d.full_name||'Motorista')}</option>`).join('')}</select><button type="button" class="ts-assign-save" data-booking="${esc(id)}">Salvar designação</button></div>
    <p class="ts-assign-feedback" aria-live="polite">${tsAdminDrivers.length?'A designação não depende do pagamento.':'Nenhum motorista ativo cadastrado.'}</p>
   </div>
-  <div class="ts-booking-footer"><button type="button" class="ts304-edit-booking" data-v292-edit="${esc(id)}" aria-label="Editar reserva ${esc(shortId)}" title="Editar reserva"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 20h9"/><path d="M16.5 3.5a2.12 2.12 0 0 1 3 3L9 17l-4 1 1-4Z"/></svg></button><button type="button" class="ts-share-booking" data-share-booking="${esc(id)}" aria-label="Compartilhar reserva ${esc(shortId)}"><svg xmlns="http://www.w3.org/2000/svg" width="23" height="23" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 16V2m0 0L7 7m5-5 5 5"/><path d="M5 11H4a2 2 0 0 0-2 2v7a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2v-7a2 2 0 0 0-2-2h-1"/></svg></button><button type="button" class="ts-delete-booking" data-booking="${esc(id)}">Excluir</button></div><button type="button" class="v292-open-admin" data-v292-open="${esc(id)}">Abrir detalhes ↗</button>
+  <div class="ts-booking-footer"><button type="button" class="ts304-edit-booking" data-v292-edit="${esc(id)}" aria-label="Editar reserva ${esc(shortId)}" title="Editar reserva"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 20h9"/><path d="M16.5 3.5a2.12 2.12 0 0 1 3 3L9 17l-4 1 1-4Z"/></svg></button><button type="button" class="ts-share-booking" data-share-booking="${esc(id)}" aria-label="Compartilhar reserva ${esc(shortId)}"><svg xmlns="http://www.w3.org/2000/svg" width="23" height="23" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 16V2m0 0L7 7m5-5 5 5"/><path d="M5 11H4a2 2 0 0 0-2 2v7a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2v-7a2 2 0 0 0-2-2h-1"/></svg></button><button type="button" class="ts-delete-booking" data-booking="${esc(id)}">Excluir</button><button type="button" class="v292-open-admin" data-v292-open="${esc(id)}">Detalhes ↗</button></div>
  </article>`;
  }).join(''):'<div class="ts-empty">Nenhuma reserva encontrada. Ajuste a busca ou os filtros.</div>';
 }
@@ -489,7 +507,7 @@ function tsDrawCalendar(){
  for(let d=1;d<=days;d++){
   const date=y+'-'+String(m+1).padStart(2,'0')+'-'+String(d).padStart(2,'0');
   const count=tsAdminRows.filter(b=>b.pickup_date===date).length;
-  html+='<button type="button" data-ts-date="'+date+'" class="'+(tsCalSelected===date?'active ':'')+(count?'has-booking':'')+'" aria-label="'+d+' de '+title.textContent+(count?', '+count+' reservas':'')+'">'+d+'</button>';
+  html+='<button type="button" data-ts-date="'+date+'" class="'+(tsCalSelected===date?'active ':'')+(count?'has-booking ts305-count-'+(count===1?'one':count<=3?'mid':'high'):'')+'" aria-label="'+d+' de '+title.textContent+(count?', '+count+' reservas':'')+'">'+d+(count?'<span class="ts305-count" aria-hidden="true">'+count+'</span>':'')+'</button>';
  }
  grid.innerHTML=html;
 }
