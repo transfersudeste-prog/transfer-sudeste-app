@@ -192,7 +192,7 @@ function selectMode(m){mode=m;$('tabLogin').classList.toggle('selected',m==='log
 function openAuth(callback=null){afterLogin=callback;$('authReset').classList.add('hidden');window.tsNavigate('conta');renderAuth()}
 $('accountButton').onclick=()=>openAuth();$('authBack').onclick=()=>window.tsNavigate('home');$('tabLogin').onclick=()=>selectMode('login');$('tabSignup').onclick=()=>selectMode('signup');
 $('authSubmit').onclick=async()=>{if(authBusy)return;const email=$('authEmail').value.trim(),password=$('authPassword').value;if(!email||!password){feedback('Informe e-mail e senha.');return}authBusy=true;$('authSubmit').disabled=true;feedback('Aguarde…');try{if(mode==='signup'){const result=await req('/auth/v1/signup',{method:'POST',body:JSON.stringify({email,password})});if(result.access_token){setSession({...result,expires_at:Math.floor(Date.now()/1000)+result.expires_in});feedback('Conta criada.')}else feedback('Cadastro recebido. Confira sua caixa de entrada e confirme o e-mail antes de entrar.')}else{const result=await req('/auth/v1/token?grant_type=password',{method:'POST',body:JSON.stringify({email,password})});setSession({...result,expires_at:Math.floor(Date.now()/1000)+result.expires_in});const driverState=await req('/rest/v1/rpc/driver_access_status',{method:'POST',headers:{Authorization:'Bearer '+result.access_token},body:'{}'}).catch(()=>null);if(['pending','approved','rejected','disabled'].includes(driverState)&&(await driverIsExclusive(result.access_token))){await driverRouteAfterLogin(driverState);feedback('Login realizado.');return}await tsCheckAdmin();feedback('Login realizado.');const cb=afterLogin;afterLogin=null;if(cb){window.tsNavigate('home');await cb()}else window.tsNavigate(tsAdminAllowed?'administracao':'reservas')}}catch(e){feedback(messageError(e))}finally{authBusy=false;$('authSubmit').disabled=false}};
-$('signOut').onclick=async()=>{const s=await current();if(s)req('/auth/v1/logout',{method:'POST',headers:{Authorization:'Bearer '+s.access_token}}).catch(()=>{});setSession(null);window.tsNavigate('home')};
+$('signOut').onclick=async()=>{const s=await current();if(s)req('/auth/v1/logout',{method:'POST',headers:{Authorization:'Bearer '+s.access_token}}).catch(()=>{});setSession(null);tsAdminAllowed=false;ts299Nav();window.tsNavigate('home')};
 $('authRecover').onclick=async()=>{const email=$('authEmail').value.trim();if(!email){feedback('Digite seu e-mail para receber o link de recuperação.');return}try{await req('/auth/v1/recover?redirect_to='+encodeURIComponent(location.origin+location.pathname),{method:'POST',body:JSON.stringify({email})});feedback('Se o e-mail estiver cadastrado, você receberá instruções de recuperação.')}catch(e){feedback(messageError(e))}};
 $('authSavePassword').onclick=async()=>{const pass=$('authNewPassword').value;if(pass.length<6){feedback('A nova senha precisa ter pelo menos 6 caracteres.');return}try{const s=await current();if(!s)throw Error('Link expirado. Solicite outro link de recuperação.');await req('/auth/v1/user',{method:'PUT',headers:{Authorization:'Bearer '+s.access_token},body:JSON.stringify({password:pass})});$('authReset').classList.add('hidden');feedback('Senha atualizada com sucesso.')}catch(e){feedback(messageError(e))}};
 async function handleAuthRedirect(){const hash=new URLSearchParams(location.hash.slice(1));const query=new URLSearchParams(location.search);if(hash.get('error_description')){openAuth();feedback(hash.get('error_description'));history.replaceState(null,'',location.pathname);return}if(hash.get('access_token')){const user=await req('/auth/v1/user',{headers:{Authorization:'Bearer '+hash.get('access_token')}}).catch(()=>null);if(user)setSession({access_token:hash.get('access_token'),refresh_token:hash.get('refresh_token'),expires_at:Math.floor(Date.now()/1000)+Number(hash.get('expires_in')||3600),user});const reset=hash.get('type')==='recovery';history.replaceState(null,'',location.pathname);openAuth();if(reset){$('authForms').classList.add('hidden');$('authSigned').classList.add('hidden');$('authReset').classList.remove('hidden')}else feedback('E-mail confirmado. Sua conta está pronta.');return}if(query.get('code')){try{const code=query.get('code');const r=await req('/auth/v1/token?grant_type=pkce',{method:'POST',body:JSON.stringify({auth_code:code,code_verifier:sessionStorage.getItem('ts-code-verifier')||''})});setSession({...r,expires_at:Math.floor(Date.now()/1000)+r.expires_in});history.replaceState(null,'',location.pathname);openAuth()}catch{}}}
@@ -266,7 +266,7 @@ function v292Hours(b){const d=String(b.pickup_date||'').slice(0,10),t=String(b.p
 async function v292Cancel(b){if(['cancelled','canceled','completed'].includes(String(b.booking_status||'').toLowerCase()))return v292Notify('Cancelamento indisponível','Esta reserva já está cancelada ou concluída.');if(['paid','partially_paid','partial','confirmed'].includes(String(b.payment_status||'pending').toLowerCase())){await v292LoadWhatsapp();return v292Notify('Pagamento confirmado','Identificamos um pagamento vinculado a esta reserva. Para garantir a análise correta do reembolso, solicite o cancelamento à equipe. A reserva permanece ativa até a confirmação.',[{label:'Solicitar pelo WhatsApp',action:()=>window.open(v292ContactUrl(b),'_blank','noopener')}])}
 if(String(b.payment_status||'pending').toLowerCase()!=='pending')return v292Notify('Verificação necessária','Não foi possível confirmar se existe pagamento nesta reserva. Entre em contato com a Transfer Sudeste antes de solicitar o cancelamento.');const hours=v292Hours(b);if(!Number.isFinite(hours)||hours<=0)return v292Notify('Cancelamento indisponível','O horário da viagem já passou ou está inválido.');const warning=hours>48?'Deseja cancelar esta reserva? Como não há pagamento confirmado no sistema, não existe valor registrado para estorno.':'ATENÇÃO: faltam 48 horas ou menos para a viagem. Pela política de cancelamento, não haverá devolução de valores. Esta reserva está com pagamento pendente. Deseja continuar?';v292Notify('Confirmar cancelamento',warning,[{label:'Sim, cancelar reserva',action:async()=>{try{const se=await current();const result=await req('/rest/v1/rpc/client_cancel_booking',{method:'POST',headers:{Authorization:'Bearer '+se.access_token},body:JSON.stringify({p_booking_id:b.id})});v292Notice.classList.add('hidden');v292Modal.classList.add('hidden');v292Notify('Reserva cancelada com sucesso',result.message||'Sua reserva foi cancelada. Não há valores registrados para estorno.');await loadBookings()}catch(e){v292Notify('Não foi possível cancelar',messageError(e))}}}])}
 let tsEditAttach=null;
-function tsOpenBooking(b,admin){v292Booking=b;$('v292Body').innerHTML=bookingDetails(b);$('v292Actions').innerHTML='';if(!admin){const btn=document.createElement('button');btn.className='v292-danger';btn.textContent='Solicitar cancelamento desta reserva';btn.onclick=()=>v292Cancel(b);$('v292Actions').appendChild(btn)}v292Modal.classList.remove('hidden');if(tsEditAttach)tsEditAttach(b,admin);$('v292Body').querySelectorAll('.v294-zoom-photo').forEach(img=>{img.onclick=()=>v294ShowPhoto(img.src);img.onkeydown=e=>{if(e.key==='Enter'||e.key===' '){e.preventDefault();v294ShowPhoto(img.src)}}})}
+function tsOpenBooking(b,admin){v292Booking=b;$('v292Body').innerHTML=bookingDetails(b);$('v292Actions').innerHTML='';if(!admin&&!tsAdminAllowed&&!driverRoleState){const btn=document.createElement('button');btn.className='v292-danger';btn.textContent='Solicitar cancelamento desta reserva';btn.onclick=()=>v292Cancel(b);$('v292Actions').appendChild(btn)}v292Modal.classList.remove('hidden');if(tsEditAttach)tsEditAttach(b,admin);$('v292Body').querySelectorAll('.v294-zoom-photo').forEach(img=>{img.onclick=()=>v294ShowPhoto(img.src);img.onkeydown=e=>{if(e.key==='Enter'||e.key===' '){e.preventDefault();v294ShowPhoto(img.src)}}})}
 $('adminBookings').addEventListener('click',e=>{const btn=e.target.closest('[data-v292-open]');if(!btn)return;const b=tsAdminRows.find(x=>x.id===btn.dataset.v292Open);if(b)tsOpenBooking(b,true)});
 function v292AddSearch(){const list=$('bookingList');if(!list||list.querySelector('.v292-search'))return;const box=document.createElement('div');box.className='v292-search';box.innerHTML='<input id="v292SearchTerm" type="search" placeholder="Buscar origem, destino, reserva ou motorista" aria-label="Buscar reservas"><button type="button" aria-label="Pesquisar reservas"><svg xmlns="http://www.w3.org/2000/svg" width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="11" cy="11" r="7"/><path d="m20 20-4-4"/></svg></button>';list.prepend(box);const input=box.querySelector('input');box.querySelector('button').onclick=()=>{const term=input.value.trim().toLocaleLowerCase('pt-BR');const cards=[...list.querySelectorAll('.ts-booking-card')];let count=0;for(const c of cards){const match=!term||c.textContent.toLocaleLowerCase('pt-BR').includes(term);c.classList.toggle('hidden',!match);if(match)count++}v292Notify('Pesquisa concluída',count?`${count} reserva(s) encontrada(s).`:'Nenhuma reserva encontrada. Tente outros termos.')};input.addEventListener('keydown',e=>{if(e.key==='Enter')box.querySelector('button').click()})}
 const v292OriginalClientRender=tsClientRender;tsClientRender=function(){v292OriginalClientRender();v292AddSearch()};
@@ -303,10 +303,29 @@ window.tsSubmitBooking=async()=>{
 let tsAdminAllowed=false,tsAdminRows=[],tsAdminDrivers=[];
 let tsCalMonth=new Date(new Date().getFullYear(),new Date().getMonth(),1),tsCalSelected='';
 const tsAdminNavigate=window.tsNavigate;
-window.tsNavigate=id=>{if(id==='administracao'&&!tsAdminAllowed)return;tsAdminNavigate(id);if(id==='administracao')tsLoadAdmin()};
+window.tsNavigate=id=>{
+ if(session?.access_token&&!driverRoleState){
+  if(tsAdminAllowed&&['reservas','contato'].includes(id))id='administracao';
+  if(!tsAdminAllowed&&id==='administracao')id='reservas';
+ }
+ if(id==='administracao'&&!tsAdminAllowed)return;
+ tsAdminNavigate(id);if(id==='administracao')tsLoadAdmin()
+};
+function ts299Nav(){
+ const logged=!!session?.access_token;
+ if(driverRoleState)return;
+ for(const b of document.querySelectorAll('.nav button[data-page]')){
+  const id=b.dataset.page;
+  const show=!logged|| (tsAdminAllowed?['home','administracao'].includes(id):['home','reservas','contato'].includes(id));
+  b.classList.toggle('hidden',!show);
+ }
+ const currentView=document.querySelector('.view.active')?.id;
+ if(logged&&tsAdminAllowed&&['reservas','contato'].includes(currentView))window.tsNavigate('administracao');
+ if(logged&&!tsAdminAllowed&&currentView==='administracao')window.tsNavigate('reservas');
+}
 async function tsCheckAdmin(){
  const s=await current();tsAdminAllowed=false;$('adminNav').classList.add('hidden');
- if(!s)return;
+ if(!s){ts299Nav();return;}
  try{
   const headers={Authorization:'Bearer '+s.access_token};
   const [owner,admin]=await Promise.all([
@@ -316,6 +335,7 @@ async function tsCheckAdmin(){
   tsAdminAllowed=owner===true||admin===true;
   $('adminNav').classList.toggle('hidden',!tsAdminAllowed);
  }catch(e){console.warn('Não foi possível validar perfil administrativo:',e)}
+ ts299Nav();
 }
 async function tsLoadAdmin(){
  if(!tsAdminAllowed)return;
@@ -504,7 +524,7 @@ const driverBaseNavigate=window.tsNavigate;window.tsNavigate=id=>{if(driverRoleS
 async function restoreDriverArea(){$('driverChangeModal').classList.add('hidden');if(inviteToken)return;const s=await current();if(!s)return;try{const status=await req('/rest/v1/rpc/driver_access_status',{method:'POST',headers:{Authorization:'Bearer '+s.access_token},body:'{}'});if(['pending','approved','rejected','disabled'].includes(status)&&(await driverIsExclusive(s.access_token))){if(await driverNeedsPasswordChange(s.access_token)){$('driverChangeModal').classList.remove('hidden')}else driverShowPanel(status)}}catch(e){console.warn('Não foi possível restaurar a área do motorista',e)}}
 if(inviteToken)setTimeout(driverOpenInvite,0);
 
-try{const old=JSON.parse(localStorage.getItem(tokenKey)||'null');if(old?.access_token)setSession(old)}catch{}renderAuth();handleAuthRedirect();restoreDriverArea();
+try{const old=JSON.parse(localStorage.getItem(tokenKey)||'null');if(old?.access_token)setSession(old)}catch{}renderAuth();handleAuthRedirect();restoreDriverArea();setTimeout(async()=>{if(session?.access_token&&!driverRoleState){await tsCheckAdmin();}},200);
 
 function tsInitEditing(){
 
