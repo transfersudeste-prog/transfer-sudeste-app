@@ -851,7 +851,12 @@ let lastId='',busy=false,model=null,role='client',toastTimer;
 function notice(t){let el=document.getElementById('tsProfileToast');if(!el){el=document.createElement('div');el.id='tsProfileToast';el.setAttribute('role','status');document.body.appendChild(el)}el.textContent=t;el.classList.add('show');clearTimeout(toastTimer);toastTimer=setTimeout(()=>el.classList.remove('show'),2000)}
 function sess(){try{return JSON.parse(localStorage.getItem('ts-supabase-session')||'null')}catch{return null}}
 async function call(path,opts={}){const s=sess();const r=await fetch(API+path,{...opts,headers:{apikey:KEY,Authorization:'Bearer '+s.access_token,'Content-Type':'application/json',...(opts.headers||{})}});const t=await r.text();let data;try{data=t?JSON.parse(t):null}catch{data=t}if(!r.ok)throw Error(data?.message||data?.error||data?.msg||'Falha ao salvar.');return data}
-async function getRow(table,id){try{const a=await call('/rest/v1/'+table+'?'+(table==='profiles'?'id':'user_id')+'=eq.'+encodeURIComponent(id)+'&select=*',{cache:'no-store'});return a?.[0]||{}}catch{return {}}}
+async function getRow(table,id){
+ if(table==='profiles'){
+  try{const p=await call('/rest/v1/rpc/ts_profile_read_mine',{method:'POST',body:'{}',cache:'no-store'});if(p&&typeof p==='object'&&!Array.isArray(p))return p}catch(e){console.warn('Leitura do perfil via RPC:',e.message)}
+ }
+ try{const a=await call('/rest/v1/'+table+'?'+(table==='profiles'?'id':'user_id')+'=eq.'+encodeURIComponent(id)+'&select=*',{cache:'no-store'});return a?.[0]||{}}catch(e){console.warn('Leitura de '+table+':',e.message);return {}}}
+
 function row(label,value){return `<div class="ts-profile-row"><div class="ts-profile-row-text"><small>${E(label)}</small><strong>${E(value||'Não informado')}</strong></div></div>`}
 function section(title,items,editable,action){return `<section class="ts-profile-section"><div style="display:flex;align-items:center;justify-content:space-between;gap:12px"><h3>${E(title)}</h3>${editable?btn('edit','Editar '+title,action):''}</div>${items.map(([a,b])=>row(a,b)).join('')}</section>`}
 function render(){if(!model)return;const p=model.profile,d=model.driver,u=model.user,m=u.user_metadata||{};const isDriver=role==='driver';const display=p.full_name||d.full_name||m.ts_profile_name||u.email?.split('@')[0]||'Usuário';const photo=m.ts_profile_photo||(!isDriver?null:d.profile_photo_url);const title={owner:'Administrador geral',admin:'Administrador gestor',client:'Cliente',driver:'Motorista'}[role]||'Minha conta';
