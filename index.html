@@ -175,6 +175,8 @@ select:disabled{opacity:.65}
 #v292Body .v292-driver>div{min-width:0!important;flex:1 1 0!important}
 </style><style id="ts308-styles">
 /* Calendário: quadrados iguais, cores por quantidade, seleção independente */
+#tsCalGrid button.ts307-date.ts307-one:not(.ts307-mid):not(.ts307-high){background:#393126!important;color:#f4ddb1!important;border:1px solid #987846!important}
+
 #tsCalGrid button.ts307-date.ts307-one{background:#393126!important;color:#f4ddb1!important;border-color:#987846!important}
 #tsCalGrid button.ts307-date.ts307-mid{background:#bc9850!important;color:#1a1308!important;border-color:#e0b96c!important}
 #tsCalGrid button.ts307-date.ts307-high{background:#f2c66c!important;color:#161008!important;border-color:#ffe0a0!important}
@@ -567,7 +569,7 @@ function tsDrawCalendar(){
  const y=tsCalMonth.getFullYear(),m=tsCalMonth.getMonth();
  const first=new Date(y,m,1).getDay(),days=new Date(y,m+1,0).getDate();
  const counts=Object.create(null);
- for(const b of tsAdminRows){if(b.pickup_date)counts[b.pickup_date]=(counts[b.pickup_date]||0)+1}
+ for(const b of tsAdminRows){const date=String(b.pickup_date||'').slice(0,10);if(/^\d{4}-\d{2}-\d{2}$/.test(date))counts[date]=(counts[date]||0)+1}
  let html=['D','S','T','Q','Q','S','S'].map(x=>'<span class="weekday">'+x+'</span>').join('');
  for(let i=0;i<first;i++)html+='<span class="ts307-empty" aria-hidden="true"></span>';
  for(let d=1;d<=days;d++){
