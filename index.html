@@ -91,6 +91,28 @@
 .ts303-driver-actions{display:flex;gap:9px;align-items:center;margin-top:12px}
 .ts303-driver-actions .back{padding:11px 14px;min-height:44px}
 #v292Actions .ts-share-detail{margin-top:12px!important}
+
+/* V30.4 — Hierarquia visual da Gestão */
+#adminBookings .ts-booking{background:#1d1d1d;border-color:#50493e;padding:17px 14px;box-shadow:0 5px 20px rgba(0,0,0,.13)}
+#adminBookings .ts-booking h3{color:#fff}
+#adminBookings .ts-booking-meta{align-items:center;gap:9px 12px;margin:15px 0;font-size:13px}
+#adminBookings .ts304-date{font-size:15px;font-weight:750;color:#fff;letter-spacing:.05px}
+#adminBookings .ts304-payment{display:inline-flex;align-items:center;border-radius:8px;padding:5px 9px;font-size:12px;font-weight:750}
+#adminBookings .ts304-payment.is-pending{background:#372222;border:1px solid #895050;color:#ffb3b3}
+#adminBookings .ts304-payment.is-paid{background:#1c3727;border:1px solid #4b8a5f;color:#a9edba}
+#adminBookings .ts-route{background:#303030;border-color:#55504a;padding:16px 14px;margin-bottom:12px}
+#adminBookings .ts-route-point small{color:#d0c4af}
+#adminBookings .ts-route-point p{color:#fff;font-size:15px;font-weight:650}
+#adminBookings .ts-route:before{left:19px}
+#adminBookings .ts-finance{display:block;border-top:0;border-bottom:1px solid #383530;padding:5px 0 14px}
+#adminBookings .ts-finance small{font-size:10px;color:#bcb5a7}
+#adminBookings .ts-finance strong{font-size:21px;color:#f1d398}
+#adminBookings .ts-booking-footer{display:flex;align-items:center;justify-content:flex-end;gap:9px;margin-top:16px;padding-top:14px}
+#adminBookings .ts304-edit-booking,#adminBookings .ts-share-booking{display:inline-flex!important;align-items:center;justify-content:center;flex:0 0 46px!important;width:46px!important;height:46px!important;min-width:46px!important;min-height:46px!important;margin:0!important;padding:0!important;border:1px solid #aa8a53!important;background:#29251f!important;color:#efd39a!important;border-radius:12px!important}
+#adminBookings .ts304-edit-booking svg,#adminBookings .ts-share-booking svg{width:24px;height:24px}
+#adminBookings .ts-delete-booking{min-height:46px!important;margin:0!important;padding:9px 17px!important;font-weight:700!important;white-space:nowrap}
+#adminBookings .v292-open-admin{display:block;width:auto;min-height:39px;padding:7px 14px;margin:12px 0 0 auto;font-size:12px;font-weight:650;background:transparent;border-color:#5b503d;color:#d3ba89}
+@media(max-width:370px){#adminBookings .ts-booking-footer{gap:6px}#adminBookings .ts304-edit-booking,#adminBookings .ts-share-booking{flex-basis:42px!important;width:42px!important;min-width:42px!important}#adminBookings .ts-delete-booking{padding:8px 11px!important}}
 </style></head><body><div class="app"><header class="top"><div><div class="brand"><img class="brand-logo" src="apple-touch-icon.png" alt="Logo Transfer Sudeste"><span>TRANSFER SUDESTE</span></div><div class="tag">TRANSPORTE EXCLUSIVO</div></div><button class="install" id="accountButton" type="button">Entrar</button><button class="install" id="install">Instalar app</button></header><section class="view active" id="home">
 
 <div class="card wizard-card" id="wizardCard"><div class="line"><b id="stepLabel">Etapa 1 de 4</b><span id="stepName">Serviço</span></div><div class="wizard-progress" id="progress"><i class="done"></i><i></i><i></i><i></i></div>
@@ -404,16 +426,15 @@ function tsRenderAdmin(){
   const shortId=id.slice(0,8).toUpperCase();
   const date=bookingDate(b.pickup_date),time=String(b.pickup_time||'').slice(0,5)||'—';
   return `<article class="ts-booking"><div class="ts-booking-top"><div class="ts-booking-person"><div class="ts-booking-id">RESERVA #${esc(shortId)}</div><h3>${esc(b.client_name||'Cliente')}</h3></div><span class="ts-status ${badgeClass}">${esc(statusPt(b.booking_status))}</span></div>
-  <div class="ts-booking-meta"><span>◷ ${esc(date)} · ${esc(time)}</span><span>Pagamento: ${esc(statusPt(b.payment_status))}</span></div>
+  <div class="ts-booking-meta"><span class="ts304-date">◷ ${esc(date)} · ${esc(time)}</span><span class="ts304-payment ${String(b.payment_status||'').toLowerCase()==='paid'?'is-paid':'is-pending'}">Pagamento: ${esc(statusPt(b.payment_status))}</span></div>
   <div class="ts-route"><div class="ts-route-point"><span class="ts-route-dot"></span><div><small>ORIGEM</small><p>${esc(b.origin||'Não informada')}</p></div></div><div class="ts-route-point"><span class="ts-route-dot ts-destination"></span><div><small>DESTINO</small><p>${esc(b.destination||'Não informado')}</p></div></div></div>
-  <div class="v292-stops">${bookingStops(b.stops).map((st,i)=>`<small>Parada ${i+1}: ${esc(st.address||String(st))}</small>`).join('')}</div><div class="ts-finance"><div><small>VALOR TOTAL</small><strong>${esc(bookingMoney(b.total_amount))}</strong></div><div><small>VALOR A COBRAR AO FINAL</small><strong>${esc(bookingMoney(b.balance_amount))}</strong></div></div>
+  <div class="v292-stops">${bookingStops(b.stops).map((st,i)=>`<small>Parada ${i+1}: ${esc(st.address||String(st))}</small>`).join('')}</div><div class="ts-finance"><div><small>VALOR TOTAL</small><strong>${esc(bookingMoney(b.total_amount))}</strong></div></div>
   ${tsDriverMini(b)}
   <div class="ts-assign"><p class="ts-assign-title">${b.driver_id?'Substituir ou retirar motorista':'Designar motorista'}</p>
    <div class="ts-assign-controls"><select class="ts-assign-select" data-booking="${esc(id)}" aria-label="Motorista da reserva ${esc(shortId)}"><option value="">Sem motorista designado</option>${tsAdminDrivers.map(d=>`<option value="${esc(d.driver_id)}" ${d.driver_id===b.driver_id?'selected':''}>${esc(d.full_name||'Motorista')} ${d.phone?'· '+esc(d.phone):''}</option>`).join('')}</select><button type="button" class="ts-assign-save" data-booking="${esc(id)}">Salvar designação</button></div>
    <p class="ts-assign-feedback" aria-live="polite">${tsAdminDrivers.length?'A designação não depende do pagamento.':'Nenhum motorista ativo cadastrado.'}</p>
   </div>
-  <button type="button" class="v292-open-admin" data-v292-open="${esc(id)}">Abrir detalhes completos ↗</button>
- <div class="ts-booking-footer"><button type="button" class="ts-share-booking" data-share-booking="${esc(id)}" aria-label="Compartilhar reserva ${esc(shortId)}"><svg xmlns="http://www.w3.org/2000/svg" width="23" height="23" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 16V2m0 0L7 7m5-5 5 5"/><path d="M5 11H4a2 2 0 0 0-2 2v7a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2v-7a2 2 0 0 0-2-2h-1"/></svg></button><button type="button" class="ts-delete-booking" data-booking="${esc(id)}">Excluir reserva</button></div>
+  <div class="ts-booking-footer"><button type="button" class="ts304-edit-booking" data-v292-edit="${esc(id)}" aria-label="Editar reserva ${esc(shortId)}" title="Editar reserva"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 20h9"/><path d="M16.5 3.5a2.12 2.12 0 0 1 3 3L9 17l-4 1 1-4Z"/></svg></button><button type="button" class="ts-share-booking" data-share-booking="${esc(id)}" aria-label="Compartilhar reserva ${esc(shortId)}"><svg xmlns="http://www.w3.org/2000/svg" width="23" height="23" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 16V2m0 0L7 7m5-5 5 5"/><path d="M5 11H4a2 2 0 0 0-2 2v7a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2v-7a2 2 0 0 0-2-2h-1"/></svg></button><button type="button" class="ts-delete-booking" data-booking="${esc(id)}">Excluir</button></div><button type="button" class="v292-open-admin" data-v292-open="${esc(id)}">Abrir detalhes ↗</button>
  </article>`;
  }).join(''):'<div class="ts-empty">Nenhuma reserva encontrada. Ajuste a busca ou os filtros.</div>';
 }
@@ -611,16 +632,12 @@ function attachEdit(b,admin){const actions=document.getElementById('v292Actions'
 document.addEventListener('click',event=>{
  const adminOpen=event.target.closest('[data-v292-open]');
  if(adminOpen){const b=tsAdminRows.find(x=>x.id===adminOpen.dataset.v292Open);if(b)attachEdit(b,true);return}
- const adminEdit=event.target.closest('[data-ts296-edit]');
- if(adminEdit){const b=tsAdminRows.find(x=>x.id===adminEdit.dataset.ts296Edit);if(b){tsOpenBooking(b,true);attachEdit(b,true);startEdit(b,true)}return}
+ const adminEdit=event.target.closest('[data-ts296-edit], [data-v292-edit]');
+ if(adminEdit){const b=tsAdminRows.find(x=>x.id===(adminEdit.dataset.ts296Edit||adminEdit.dataset.v292Edit));if(b){tsOpenBooking(b,true);attachEdit(b,true);startEdit(b,true)}return}
  const clientOpen=event.target.closest('.ts-booking-main');
  if(clientOpen){const card=clientOpen.closest('[data-ts-card]');const b=card&&tsClientRows[Number(card.dataset.tsCard)];if(b)attachEdit(b,false)}
 });
-// Botão de edição visível também na lista administrativa.
-const adminList=document.getElementById('adminBookings');
-if(adminList){const obs=new MutationObserver(()=>{for(const open of adminList.querySelectorAll('[data-v292-open]')){if(open.nextElementSibling?.matches('[data-ts296-edit]'))continue;const b=document.createElement('button');b.type='button';b.className='v292-open-admin ts296-admin-edit';b.dataset.ts296Edit=open.dataset.v292Open;b.textContent='Editar reserva';open.insertAdjacentElement('afterend',b)}});obs.observe(adminList,{childList:true,subtree:false});}
-
-
+// Edição administrativa acessível pelo botão compacto no cartão.
  tsEditAttach=attachEdit;
 
 }
