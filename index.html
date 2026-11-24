@@ -422,7 +422,7 @@ body:has(.ts315-banner:not(.hidden)) .ts315-page.active{padding-bottom:54px}
 <section class="view ts315-page" id="clienteReservas"><div class="ts318-reservations-head"><h1>Reservas</h1></div><div id="ts315Reservations"></div></section>
 <section class="view ts315-page" id="clienteHistorico"><div class="ts318-reservations-head"><h1>Histórico</h1></div><div id="ts315History"></div></section>
 <section class="view ts315-page" id="clienteSobre"><h1>Sobre nós</h1><div id="ts315About"></div></section>
-<section class="view ts315-page" id="clienteContato"><h1>Contato</h1><div id="ts315Contact"></div></section>
+<section class="view ts315-page" id="clienteContato"><h1>Contato</h1><div id="ts315Contact"></div><div id="ts315ContactPix" class="f315company"></div></section>
 <dialog class="dialog ts315-dialog" id="ts315Dialog" aria-labelledby="ts315DialogTitle">
  <button type="button" class="back ts306-icon-close" id="ts315Close" aria-label="Fechar">×</button>
  <h2 id="ts315DialogTitle"></h2><div id="ts315DialogBody"></div>
@@ -1315,7 +1315,10 @@ const ts315=(()=>{
  }
  function applyNav(){
   if(!accessible())return false;
-  document.querySelectorAll('.nav button[data-page]').forEach(b=>b.classList.toggle('hidden',!pages.includes(b.dataset.page)));
+  for(const button of document.querySelectorAll('.nav button[data-page]')){
+   const page=button.dataset.page;
+   button.classList.toggle('hidden',!pages.includes(page)||(page===pages[3]&&!isClient()));
+  }
   if(['home','reservas','contato'].includes(activePage())){
    window.tsNavigate(({home:pages[0],reservas:pages[1],contato:pages[4]})[activePage()]);
   }
@@ -1359,7 +1362,7 @@ const ts315=(()=>{
   $('ts315PasswordButton').classList.add('hidden');
   $('ts315OwnerTools').classList.add('hidden');
   closeDialog();
-  write('ts315Passenger','');write('ts315About','');write('ts315Contact','');
+  write('ts315Passenger','');write('ts315About','');write('ts315Contact','');write('ts315ContactPix','');
   // A pessoa pode entrar para continuar o formulário iniciado como visitante.
   if(previous)resetForm();
  }
@@ -1396,6 +1399,7 @@ const ts315=(()=>{
  const oldNavigate=window.tsNavigate;
  window.tsNavigate=id=>{
   if(!tsAdminAllowed&&['administracao','financeiro'].includes(id))return;
+  if(id===pages[3]&&!isClient())return;
   if(accessible())id=({home:pages[0],reservas:pages[1],contato:pages[4]})[id]||id;
   else if(session&&!tsAdminAllowed&&!driverRoleState&&['home','reservas','contato'].includes(id)){
    openAccountArea(null);return;
@@ -1418,7 +1422,7 @@ const ts315=(()=>{
    if(isClient())void refreshBookings();
   }
   if(id===pages[3])void renderAbout();
-  if(id===pages[4])void renderContact();
+  if(id===pages[4]){void renderContact();void renderContactPix()}
  };
  function withClient(action){
   if(isClient())return action();
@@ -2268,6 +2272,47 @@ const ts315=(()=>{
    };
   }catch(err){if(seq===identityVersion)write('ts315Contact',messageError(err))}
  }
+ let contactPixLoad=0;
+ async function renderContactPix(){
+  const host=$('ts315ContactPix'), seq=identityVersion, load=++contactPixLoad;
+  const canRender=()=>seq===identityVersion&&load===contactPixLoad&&isClient()&&activePage()===pages[4];
+  host.replaceChildren();
+  if(!isClient())return;
+  host.innerHTML='<p class="soft-note" role="status">Carregando dados do PIX…</p>';
+  try{
+   let pix=firstRow(await rpc('ts_client_get_company_pix'));
+   if(!canRender())return;
+   if(!pix?.pix_key){
+    host.innerHTML='<p class="soft-note">PIX indisponível no momento.</p>';
+    return;
+   }
+   host.innerHTML=window.tsCompanyPix.card(pix);
+   for(const button of host.querySelectorAll('[data-client-pix]')){
+    button.onclick=async()=>{
+     if(!canRender())return;
+     button.disabled=true;
+     try{
+      if(button.dataset.clientPix==='copy'){
+       await window.tsCompanyPix.copy(pix);
+      }else{
+       const fresh=firstRow(await rpc('ts_client_get_company_pix'));
+       if(!canRender())return;
+       pix=fresh;
+       await window.tsCompanyPix.showCode(pix);
+      }
+     }catch(err){
+      if(canRender()){
+       openDialog('PIX indisponível',`<p>${esc(messageError(err))}</p>`);
+      }
+     }finally{button.disabled=false}
+    };
+   }
+  }catch(err){
+   if(canRender()){
+    host.innerHTML='<p class="soft-note">Não foi possível consultar os dados do PIX.</p>';
+   }
+  }
+ }
  async function renderAbout(){
   const seq=identityVersion;
   const host=$('ts315About');
@@ -2280,12 +2325,16 @@ const ts315=(()=>{
   try{
    const a=firstRow(await rpc('ts_get_company_about'));
    if(seq!==identityVersion)return;
-   const services=Array.isArray(a?.services)?a.services.filter(Boolean):String(a?.services||'').split(/\r?\n/).filter(Boolean);
+   const title=String(a?.title||'').trim();
+   const description=String(a?.description||'').trim();
+   const textServices=Array.isArray(a?.services)?a.services:String(a?.services||'').split(/\r?\n/);
+   const services=textServices.map(item=>String(item||'').trim()).filter(Boolean);
    const photo=webUrl(a?.photo_url);
-   host.innerHTML=(a?.title||a?.description||photo?`<div class="f314card">${a.title?`<h2>${esc(a.title)}</h2>`:''}
-    ${a.description?`<p>${esc(a.description)}</p>`:''}${photo?`<img class="ts315-photo" src="${esc(photo)}" alt="Equipe da Transfer Sudeste">`:''}</div>`:'')+
-    (services.length?`<div class="f314card"><h2>Serviços</h2><ul>${services.map(item=>'<li>'+esc(item)+'</li>').join('')}</ul></div>`:'')||
-    '<p class="soft-note">As informações institucionais ainda não foram preenchidas.</p>';
+   const heading=title&&title.toLocaleLowerCase('pt-BR')!=='sobre nós'?`<h2>${esc(title)}</h2>`:'';
+   const institution=description||photo?`<div class="f314card">${heading}
+    ${description?`<p>${esc(description)}</p>`:''}${photo?`<img class="ts315-photo" src="${esc(photo)}" alt="Equipe da Transfer Sudeste">`:''}</div>`:'';
+   const serviceList=services.length?`<div class="f314card"><h2>Serviços</h2><ul>${services.map(item=>'<li>'+esc(item)+'</li>').join('')}</ul></div>`:'';
+   host.innerHTML=institution+serviceList||'<p class="soft-note">As informações institucionais ainda não foram preenchidas.</p>';
   }catch(err){if(seq===identityVersion)host.textContent=messageError(err)}
  }
  async function ownerForm(type){
@@ -3807,8 +3856,26 @@ function pixPayload(c){const key=String(c?.pix_key||'').trim();if(!key||key.leng
 function qrData(value){const qr=new QRLocal(-1,0);qr.addData(Array.from(new TextEncoder().encode(value),b=>String.fromCharCode(b)).join(''));qr.make();const n=qr.getModuleCount(),size=n+8;let d='';for(let y=0;y<n;y++)for(let x=0;x<n;x++)if(qr.isDark(y,x))d+=`M${x+4} ${y+4}h1v1h-1z`;return 'data:image/svg+xml;charset=utf-8,'+encodeURIComponent(`<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 ${size} ${size}" width="${size*8}" height="${size*8}" shape-rendering="crispEdges"><path fill="white" d="M0 0h${size}v${size}H0z"/><path fill="black" d="${d}"/></svg>`)}
 window.tsCompanyContactQr=qrData;
 function validWeb(v){try{const u=new URL(v);return u.protocol==='https:'||u.protocol==='http:'?u.href:''}catch{return ''}}
-function company(edit){if(edit)return companyEdit(true);if(!settings)return '<p>Configurações indisponíveis.</p>';const field=(label,value)=>'<div class="f315field"><span>'+esc(label)+'</span><strong>'+esc(String(value??'—'))+'</strong></div>';const link=(label,value,url)=>'<div class="f315field"><span>'+esc(label)+'</span><a href="'+esc(url)+'" target="_blank" rel="noopener noreferrer">'+esc(value||'—')+'</a></div>';const safe=v=>/^https:\/\//i.test(v||'')?v:'#';const phone=String(settings.whatsapp_number||'').replace(/\D/g,'');const formatted=phone.length===13?`+${phone.slice(0,2)} (${phone.slice(2,4)}) ${phone.slice(4,9)}-${phone.slice(9)}`:phone;const qrIcon='<svg viewBox="0 0 24 24" width="23" height="23" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><path d="M14 14h3v3h4v4h-7v-4m7-3v1"/></svg>';return '<div class="f315company">'+card('Contato',link('WhatsApp',formatted,'https://wa.me/'+phone)+link('E-mail',settings.email,'mailto:'+String(settings.email||''))+'<div class="f315field f316instagram"><div><span>Instagram</span><a href="'+esc(validWeb(settings.instagram_url)||'#')+'" target="_blank" rel="noopener noreferrer">'+esc(validWeb(settings.instagram_url)?'@'+new URL(settings.instagram_url).pathname.split('/').filter(Boolean)[0]:'—')+'</a></div><button type="button" data-f314="instagramqr" aria-label="Exibir QR Code do Instagram">'+qrIcon+'</button></div>'+link('Site',settings.website_url,validWeb(settings.website_url)||'#'))+card('Dados bancários',field('Titular',settings.pix_holder_name)+field('Banco',settings.pix_bank_name)+'<div class="f315pix"><span>Chave PIX</span><button type="button" data-f314="copy">Copiar chave PIX</button><button type="button" data-f314="qr" aria-label="Exibir QR Code PIX">'+qrIcon+'</button></div>')+card('Condições financeiras',field('Taxa da Empresa',Number(settings.commission_percentage).toLocaleString('pt-BR')+'%')+field('Prazo para repasse',settings.driver_payment_deadline_days+' dias corridos')+field('Aviso de vencimento',settings.driver_payment_warning_days+' dias antes'))+'</div>'}
-function financeDialog(message,yesNo=false,qr=false){return new Promise(resolve=>{const overlay=document.createElement('div');overlay.className='f314confirm f315dialog';const panel=document.createElement('div');panel.setAttribute('role','dialog');panel.setAttribute('aria-modal','true');const heading=document.createElement('h3');heading.textContent=qr==='instagram'?'QR Code Instagram':qr?'QR Code PIX':'Transfer Sudeste';panel.append(heading);const text=document.createElement('p');text.textContent=message;panel.append(text);if(qr){const image=document.createElement('img');image.alt=qr==='instagram'?'QR Code Instagram':'QR Code PIX estático';image.src=qrData(qr==='instagram'?validWeb(settings.instagram_url):pixPayload(settings));panel.append(image)}const actions=document.createElement('div');(yesNo?['Não','Sim']:['OK']).forEach((label,i)=>{const b=document.createElement('button');b.type='button';b.className=yesNo&&i===0?'back':'primary';b.textContent=label;b.onclick=()=>{overlay.remove();resolve(!yesNo||i===1)};actions.append(b)});panel.append(actions);overlay.append(panel);document.body.append(overlay);actions.querySelector('button').focus()})}
+const companyQrIcon='<svg viewBox="0 0 24 24" width="23" height="23" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><path d="M14 14h3v3h4v4h-7v-4m7-3v1"/></svg>'; 
+function companyField(label,value){
+ return '<div class="f315field"><span>'+esc(label)+'</span><strong>'+esc(String(value??'—'))+'</strong></div>';
+}
+function companyPixCard(data,actionAttr='data-f314'){
+ return card('Dados bancários',companyField('Titular',data.pix_holder_name)+companyField('Banco',data.pix_bank_name)+
+  '<div class="f315pix"><span>Chave PIX</span><button type="button" '+actionAttr+'="copy">Copiar chave PIX</button>'+
+  '<button type="button" '+actionAttr+'="qr" aria-label="Exibir QR Code PIX">'+companyQrIcon+'</button></div>');
+}
+window.tsCompanyPix={
+ card:data=>companyPixCard(data,'data-client-pix'),
+ async copy(data){
+  if(!data?.pix_key)throw Error('Chave PIX indisponível.');
+  await navigator.clipboard.writeText(data.pix_key);
+  toast('Copiado para a área de transferência',1500);
+ },
+ showCode:data=>financeDialog('Escaneie no aplicativo do seu banco e informe o valor.',false,true,data)
+};
+function company(edit){if(edit)return companyEdit(true);if(!settings)return '<p>Configurações indisponíveis.</p>';const field=(label,value)=>'<div class="f315field"><span>'+esc(label)+'</span><strong>'+esc(String(value??'—'))+'</strong></div>';const link=(label,value,url)=>'<div class="f315field"><span>'+esc(label)+'</span><a href="'+esc(url)+'" target="_blank" rel="noopener noreferrer">'+esc(value||'—')+'</a></div>';const safe=v=>/^https:\/\//i.test(v||'')?v:'#';const phone=String(settings.whatsapp_number||'').replace(/\D/g,'');const formatted=phone.length===13?`+${phone.slice(0,2)} (${phone.slice(2,4)}) ${phone.slice(4,9)}-${phone.slice(9)}`:phone;const qrIcon=companyQrIcon;return '<div class="f315company">'+card('Contato',link('WhatsApp',formatted,'https://wa.me/'+phone)+link('E-mail',settings.email,'mailto:'+String(settings.email||''))+'<div class="f315field f316instagram"><div><span>Instagram</span><a href="'+esc(validWeb(settings.instagram_url)||'#')+'" target="_blank" rel="noopener noreferrer">'+esc(validWeb(settings.instagram_url)?'@'+new URL(settings.instagram_url).pathname.split('/').filter(Boolean)[0]:'—')+'</a></div><button type="button" data-f314="instagramqr" aria-label="Exibir QR Code do Instagram">'+qrIcon+'</button></div>'+link('Site',settings.website_url,validWeb(settings.website_url)||'#'))+companyPixCard(settings)+card('Condições financeiras',field('Taxa da Empresa',Number(settings.commission_percentage).toLocaleString('pt-BR')+'%')+field('Prazo para repasse',settings.driver_payment_deadline_days+' dias corridos')+field('Aviso de vencimento',settings.driver_payment_warning_days+' dias antes'))+'</div>'}
+function financeDialog(message,yesNo=false,qr=false,companyData=settings){return new Promise(resolve=>{const overlay=document.createElement('div');overlay.className='f314confirm f315dialog';const panel=document.createElement('div');panel.setAttribute('role','dialog');panel.setAttribute('aria-modal','true');const heading=document.createElement('h3');heading.textContent=qr==='instagram'?'QR Code Instagram':qr?'QR Code PIX':'Transfer Sudeste';panel.append(heading);const text=document.createElement('p');text.textContent=message;panel.append(text);if(qr){const image=document.createElement('img');image.alt=qr==='instagram'?'QR Code Instagram':'QR Code PIX estático';image.src=qrData(qr==='instagram'?validWeb(companyData.instagram_url):pixPayload(companyData));panel.append(image)}const actions=document.createElement('div');(yesNo?['Não','Sim']:['OK']).forEach((label,i)=>{const b=document.createElement('button');b.type='button';b.className=yesNo&&i===0?'back':'primary';b.textContent=label;b.onclick=()=>{overlay.remove();resolve(!yesNo||i===1)};actions.append(b)});panel.append(actions);overlay.append(panel);document.body.append(overlay);actions.querySelector('button').focus()})}
 
 function render(view){if(view==='motoristaEmpresa'){$('ts314Empresa').innerHTML=company(false);return}if(view==='financeiro'){$('ts314Admin').innerHTML=card('Resumo',row('A receber',money(sum(entries.filter(r=>r.transfer_direction==='driver_to_company'&&r.transfer_status!=='confirmed'),'transfer_amount')))+row('A pagar',money(sum(entries.filter(r=>r.transfer_direction==='company_to_driver'&&r.transfer_status!=='confirmed'),'transfer_amount'))))+ (owner?company(true):'')+transfers(entries,true);return}const a=entries.filter(r=>r.service_date>=range()&&r.service_date<=today()),open=entries.filter(r=>r.transfer_status!=='confirmed'),incoming=open.filter(r=>r.transfer_direction==='company_to_driver'),ready=incoming.filter(r=>r.transfer_status==='reported'),out=open.filter(r=>r.transfer_direction==='driver_to_company');$('ts314Ganhos').innerHTML='<div class="f314tabs" role="group" aria-label="Período">'+['Hoje','Semana','Mês'].map(x=>'<button type="button" data-f314="period" data-ids="'+x+'" aria-pressed="'+(period===x)+'">'+x+'</button>').join('')+'</div>'+card('Ganhos','<div class="f314main">'+money(sum(a,'driver_net_amount'))+'</div>'+row('Bruto',money(sum(a,'gross_amount')))+row('Taxa da Empresa ('+(settings?.commission_percentage==null?'—':Number(settings.commission_percentage).toLocaleString('pt-BR',{maximumFractionDigits:2})+'%')+')',money(sum(a,'commission_amount'))))+card('Pendências',row('A receber',money(sum(incoming,'transfer_amount')))+row('A repassar',money(sum(out,'transfer_amount'))))+card('Confirmações',row('Valor pendente de recebimento',money(sum(incoming,'transfer_amount')))+row('Valor pendente para repasse',money(sum(out,'transfer_amount')))+'<button type="button" class="primary" data-f314="choose">Confirmar</button>')+(out.length?transfers(out,false):'')}
 
