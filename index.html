@@ -375,7 +375,7 @@ const tokenKey='ts-supabase-session';
 function feedback(t){$('authFeedback').textContent=t}
 function messageError(err){const t=String(err?.message||err||'Erro desconhecido');if(/Invalid login credentials/i.test(t))return 'E-mail ou senha incorretos.';if(/Email not confirmed/i.test(t))return 'Confirme seu e-mail pelo link recebido antes de entrar.';if(/User already registered/i.test(t))return 'Este e-mail já possui uma conta.';if(/Password should be/i.test(t))return 'Senha rejeitada pelas regras de senha do Supabase. Verifique Authentication → Settings → Password Security.';return t}
 async function req(path,opts={}){const r=await fetch(BASE+path,{...opts,headers:{apikey:KEY,'Content-Type':'application/json',...(opts.headers||{})}});const raw=await r.text();let j;try{j=raw?JSON.parse(raw):{}}catch{j={message:raw}}if(!r.ok)throw Error(j.msg||j.error_description||j.message||j.error||`Erro HTTP ${r.status}`);return j}
-function setSession(s){session=s?.access_token?s:null;if(session)localStorage.setItem(tokenKey,JSON.stringify(session));else localStorage.removeItem(tokenKey);renderAuth()}
+function setSession(s){const previous=session?.user?.id;const next=s?.user?.id;if(!next||previous!==next){driverRoleState=null;tsAdminAllowed=false;ts318Rows=[];ts318Trips.clear();ts318Selected=null;ts318PendingFinish=false;tsAdminRows=[];tsAdminDrivers=[];$('driverPanelBookings').textContent='';$('ts318DriverDetail').innerHTML='';$('ts318Confirm').classList.add('hidden');$('driverChangeModal').classList.add('hidden');}session=s?.access_token?s:null;if(session)localStorage.setItem(tokenKey,JSON.stringify(session));else localStorage.removeItem(tokenKey);renderAuth()}
 async function current(){if(!session)return null;if(session.expires_at&&Date.now()/1000>session.expires_at-60){try{const s=await req('/auth/v1/token?grant_type=refresh_token',{method:'POST',body:JSON.stringify({refresh_token:session.refresh_token})});setSession({...s,expires_at:Math.floor(Date.now()/1000)+s.expires_in})}catch{setSession(null);return null}}return session}
 function renderAuth(){const logged=!!session?.user;$('accountButton').textContent=logged?'Minha conta':'Entrar';$('authSigned').classList.toggle('hidden',!logged);$('authForms').classList.toggle('hidden',logged);if(logged){$('authUser').textContent='Conectado como '+(session.user.email||'cliente');if(!$('clientEmail').value)$('clientEmail').value=session.user.email||''}if(document.querySelector('#reservas.active'))loadBookings()}
 function selectMode(m){mode=m;$('tabLogin').classList.toggle('selected',m==='login');$('tabSignup').classList.toggle('selected',m==='signup');$('authSubmit').textContent=m==='login'?'Entrar':'Criar conta';$('authPassword').autocomplete=m==='login'?'current-password':'new-password';feedback('')}
@@ -526,11 +526,11 @@ function ts299Nav(){
  if(driverRoleState)return;
  for(const b of document.querySelectorAll('.nav button[data-page]')){
   const id=b.dataset.page;
-  const show=!logged|| (tsAdminAllowed?['home','administracao'].includes(id):['home','reservas','contato'].includes(id));
+  const show=tsAdminAllowed&&logged?['home','administracao'].includes(id):['home','reservas','contato'].includes(id);
   b.classList.toggle('hidden',!show);
  }
  const currentView=document.querySelector('.view.active')?.id;
- if(logged&&tsAdminAllowed&&['reservas','contato'].includes(currentView))window.tsNavigate('administracao');
+ if(logged&&tsAdminAllowed&&['reservas','contato','motoristaPainel'].includes(currentView))window.tsNavigate('administracao');
  if(logged&&!tsAdminAllowed&&currentView==='administracao')window.tsNavigate('reservas');
  const homeNav=document.querySelector('.nav button[data-page="home"]');
  window.tsAdminAllowedForWizard=!!(tsAdminAllowed&&logged);document.querySelector('#home .checkrow')?.classList.toggle('hidden',window.tsAdminAllowedForWizard);document.getElementById('openPolicies')?.classList.toggle('hidden',window.tsAdminAllowedForWizard);if(homeNav)homeNav.innerHTML=tsAdminAllowed&&logged?'⌂<br>Despacho manual':'⌂<br>Início';
@@ -542,7 +542,7 @@ function ts299Nav(){
  if(details)details.textContent=tsAdminAllowed&&logged?'Preencha os dados informados pelo cliente para registrar o despacho.':'Informe os dados para preparar seu orçamento.';
 }
 async function tsCheckAdmin(){
- const s=await current();tsAdminAllowed=false;$('adminNav').classList.add('hidden');
+ const s=await current();const uid=s?.user?.id;if(!s){tsAdminAllowed=false;driverRoleState=null;}
  if(!s){ts299Nav();return;}
  try{
   const headers={Authorization:'Bearer '+s.access_token};
@@ -550,11 +550,11 @@ async function tsCheckAdmin(){
    req('/rest/v1/rpc/is_owner',{method:'POST',headers,body:'{}'}),
    req('/rest/v1/rpc/is_admin',{method:'POST',headers,body:'{}'})
   ]);
-  tsAdminAllowed=owner===true||admin===true;
+  if(session?.user?.id!==uid)return;tsAdminAllowed=owner===true||admin===true;if(tsAdminAllowed)driverRoleState=null;
   $('adminNav').classList.toggle('hidden',!tsAdminAllowed);
  }catch(e){console.warn('Não foi possível validar perfil administrativo:',e)}
  ts299Nav();
- if(tsAdminAllowed&&document.querySelector('.view.active')?.id==='home')window.tsNavigate('administracao');
+ 
 }
 async function tsLoadAdmin(){
  if(!tsAdminAllowed)return;
@@ -724,9 +724,7 @@ const oldAdminNav=window.tsNavigate;window.tsNavigate=id=>{oldAdminNav(id);if(id
 // V26: credenciais, troca inicial de senha e área exclusiva.
 async function driverIsExclusive(token){
  try{
-  return (await req('/rest/v1/rpc/is_exclusive_driver_account',{
-   method:'POST',headers:{Authorization:'Bearer '+token},body:'{}'
-  }))===true;
+  const opts={method:'POST',headers:{Authorization:'Bearer '+token},body:'{}'};const [owner,admin,driver]=await Promise.all(['is_owner','is_admin','is_exclusive_driver_account'].map(r=>req('/rest/v1/rpc/'+r,opts)));return owner!==true&&admin!==true&&driver===true&&session?.access_token===token;
  }catch(e){
   console.warn('Não foi possível confirmar perfil exclusivo de motorista',e);
   return false;
@@ -798,7 +796,7 @@ function ts318RenderAction(){const b=ts318Rows[ts318Selected],t=ts318Trips.get(S
  $('ts318PaymentNext').onclick=()=>{const method=$('ts318Payment').value;const names={pix:'PIX',cash:'Dinheiro',debit:'Cartão de débito',credit:'Cartão de crédito'};$('ts318ConfirmSummary').textContent='Reserva #'+String(b.id).slice(0,8).toUpperCase()+' · '+names[method]+' · '+ts318Money(b.total_amount);$('ts318ConfirmError').textContent='';$('ts318Confirm').classList.remove('hidden');$('ts318ConfirmYes').onclick=async()=>{const btn=$('ts318ConfirmYes');btn.disabled=true;try{await ts303TripAction(b.id,'finish',method==='debit'||method==='credit'?'card':method);$('ts318Confirm').classList.add('hidden');await ts303LoadDriverBookings();const finishedIndex=ts318Rows.findIndex(row=>String(row.id)===String(b.id));if(finishedIndex>=0)ts318Open(finishedIndex);else ts318List();if(typeof tsProfileNotice==='function')tsProfileNotice('Atendimento concluído');else{const el=document.createElement('div');el.id='ts318Success';el.textContent='✓ Atendimento concluído';el.style.cssText='position:fixed;bottom:115px;left:50%;transform:translateX(-50%);z-index:99999;background:#d8b773;color:#18130d;border-radius:12px;padding:13px 20px;font-weight:800;white-space:nowrap';document.body.appendChild(el);setTimeout(()=>el.remove(),2300)}}catch(e){$('ts318ConfirmError').textContent=messageError(e)}finally{btn.disabled=false}}};
 }
 async function ts303LoadDriverBookings(){
- const panel=$('driverPanelBookings');try{const se=await current();if(!se)return;const headers={Authorization:'Bearer '+se.access_token};const rows=await req('/rest/v1/rpc/ts_driver_bookings_mine',{method:'POST',headers,body:'{}'});ts318Rows=Array.isArray(rows)?rows:[];let trips=[];try{trips=await req('/rest/v1/driver_trip_events?select=booking_id,started_at,finished_at,payment_method&driver_id=eq.'+encodeURIComponent(se.user.id),{headers})}catch(e){console.warn('Consulta de etapas do motorista:',e)}ts318Trips=new Map((Array.isArray(trips)?trips:[]).map(t=>[String(t.booking_id),t]));ts318List();}catch(e){panel.textContent='Não foi possível carregar as reservas designadas: '+messageError(e)}
+ const panel=$('driverPanelBookings');try{const se=await current();if(!se)return;const headers={Authorization:'Bearer '+se.access_token};const rows=await req('/rest/v1/rpc/ts_driver_bookings_mine',{method:'POST',headers,body:'{}'});if(session?.user?.id!==se.user.id||!driverRoleState||tsAdminAllowed)return;ts318Rows=Array.isArray(rows)?rows:[];let trips=[];try{trips=await req('/rest/v1/driver_trip_events?select=booking_id,started_at,finished_at,payment_method&driver_id=eq.'+encodeURIComponent(se.user.id),{headers})}catch(e){console.warn('Consulta de etapas do motorista:',e)}if(session?.user?.id!==se.user.id||!driverRoleState||tsAdminAllowed)return;ts318Trips=new Map((Array.isArray(trips)?trips:[]).map(t=>[String(t.booking_id),t]));ts318List();}catch(e){panel.textContent='Não foi possível carregar as reservas designadas: '+messageError(e)}
 }
 $('ts318ConfirmBack').onclick=()=>$('ts318Confirm').classList.add('hidden');
  $('ts319DetailClose').onclick=()=>ts318List();
@@ -807,8 +805,8 @@ $('ts315FinishCancel').onclick=()=>$('ts315FinishModal').classList.add('hidden')
 $('driverCredentialLogin').onclick=()=>{$('driverCredentialsModal').classList.add('hidden');selectMode('login');$('authEmail').value=$('driverCredentialEmail').textContent;$('authPassword').value=$('driverCredentialPassword').textContent;openAuth();};
 $('driverChangeSubmit').onclick=async()=>{const pass=$('driverChangePassword').value,confirmPass=$('driverChangeConfirm').value,btn=$('driverChangeSubmit');if(pass.length<6||pass!==confirmPass){$('driverChangeFeedback').textContent='Informe uma senha de pelo menos 6 caracteres e confirme corretamente.';return}btn.disabled=true;try{const s=await current();if(!s)throw Error('Sessão expirada. Faça login novamente.');await req('/auth/v1/user',{method:'PUT',headers:{Authorization:'Bearer '+s.access_token},body:JSON.stringify({password:pass,data:{driver_password_changed:true}})});$('driverChangeModal').classList.add('hidden');const status=await req('/rest/v1/rpc/driver_access_status',{method:'POST',headers:{Authorization:'Bearer '+s.access_token},body:'{}'});driverShowPanel(status)}catch(e){$('driverChangeFeedback').textContent=messageError(e)}finally{btn.disabled=false}};
 $('driverPanelSignOut').onclick=()=>{driverRoleState=null;$('ts316DriverNav').classList.add('hidden');document.querySelectorAll('.nav button[data-page]').forEach(b=>{if(b.dataset.page!=='motoristaPainel')b.classList.remove('hidden')});$('signOut').click()};
-const driverBaseNavigate=window.tsNavigate;window.tsNavigate=id=>{if(driverRoleState&&['home','reservas','contato'].includes(id))id='motoristaPainel';driverBaseNavigate(id)};
-async function restoreDriverArea(){$('driverChangeModal').classList.add('hidden');if(inviteToken)return;const s=await current();if(!s)return;try{const status=await req('/rest/v1/rpc/driver_access_status',{method:'POST',headers:{Authorization:'Bearer '+s.access_token},body:'{}'});if(['pending','approved','rejected','disabled'].includes(status)&&(await driverIsExclusive(s.access_token))){if(await driverNeedsPasswordChange(s.access_token)){$('driverChangeModal').classList.remove('hidden')}else driverShowPanel(status)}}catch(e){console.warn('Não foi possível restaurar a área do motorista',e)}}
+const driverBaseNavigate=window.tsNavigate;window.tsNavigate=id=>{if(tsAdminAllowed&&id==='motoristaPainel')id='administracao';else if(driverRoleState&&['home','reservas','contato','administracao'].includes(id))id='motoristaPainel';else if(id==='motoristaPainel'&&!driverRoleState)return;driverBaseNavigate(id)};
+async function restoreDriverArea(){$('driverChangeModal').classList.add('hidden');if(inviteToken)return;const s=await current();if(!s)return;try{const status=await req('/rest/v1/rpc/driver_access_status',{method:'POST',headers:{Authorization:'Bearer '+s.access_token},body:'{}'});if(['pending','approved','rejected','disabled'].includes(status)&&(await driverIsExclusive(s.access_token))){const needs=await driverNeedsPasswordChange(s.access_token);if(session?.user?.id!==s.user.id||tsAdminAllowed)return;if(needs){$('driverChangeModal').classList.remove('hidden')}else driverShowPanel(status)}}catch(e){console.warn('Não foi possível restaurar a área do motorista',e)}}
 if(inviteToken)setTimeout(driverOpenInvite,0);
 
 try{const old=JSON.parse(localStorage.getItem(tokenKey)||'null');if(old?.access_token)setSession(old)}catch{}renderAuth();handleAuthRedirect();restoreDriverArea();setTimeout(async()=>{if(session?.access_token&&!driverRoleState){await tsCheckAdmin();}},200);
