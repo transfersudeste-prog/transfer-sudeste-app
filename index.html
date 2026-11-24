@@ -281,7 +281,7 @@ select:disabled{opacity:.65}
   </div>
   <div class="ts-admin-section hidden" data-admin-section="reservations">
   <div class="ts-panel"><div class="ts-section-title"><div><div class="ts-eyebrow">OPERAÇÃO</div><h2>Gestão de reservas</h2></div><span class="ts-count" id="adminCount">—</span></div>
-   <div class="ts-controls"><label class="ts-search-wrap"><span aria-hidden="true">⌕</span><input id="adminSearch" type="search" placeholder="Buscar cliente, destino ou reserva" autocomplete="off" aria-label="Buscar reservas"></label><select id="adminFilter" aria-label="Filtrar reservas"><option value="all">Todas as situações</option><option value="pending">Pendentes</option><option value="confirmed">Confirmadas</option><option value="completed">Concluídas</option><option value="cancelled">Canceladas</option></select></div>
+   <div class="ts-controls"><label class="ts-search-wrap"><span aria-hidden="true">⌕</span><input id="adminSearch" type="search" placeholder="Buscar cliente, destino ou reserva" autocomplete="off" aria-label="Buscar reservas"></label><select id="adminFilter" aria-label="Filtrar reservas"><option value="all">Todas as situações</option><option value="pending">Pendentes</option><option value="confirmed">Confirmadas</option><option value="in_progress">Em andamento</option><option value="completed">Concluídas</option><option value="cancelled">Canceladas</option></select></div>
    <div class="ts-calendar" id="tsAdminCalendar"><div class="ts-calendar-head"><button type="button" id="tsCalPrev" aria-label="Mês anterior">‹</button><strong id="tsCalTitle"></strong><button type="button" id="tsCalNext" aria-label="Próximo mês">›</button></div><div class="ts-calendar-grid" id="tsCalGrid"></div><button type="button" class="back" id="tsCalClear">Mostrar todas as datas</button></div><p class="ts-list-caption" id="adminSummary">Carregando dados…</p><div id="adminBookings" aria-live="polite">Aguardando acesso administrativo.</div>
   </div>
  
@@ -371,11 +371,35 @@ const $=id=>document.getElementById(id);
 const money=n=>Number(n).toLocaleString('pt-BR',{style:'currency',currency:'BRL'});
 const esc=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 let session=null,mode='login',afterLogin=null,authBusy=false,bookingBusy=false;
+let ts312Socket=null,ts312Heartbeat=null,ts312Timer=null,ts312Busy=false,ts312Dirty=false,ts312Identity='',ts312Last=0;
+function ts312Stop(){const ws=ts312Socket;ts312Socket=null;if(ws)ws.close();clearInterval(ts312Heartbeat);clearTimeout(ts312Timer);ts312Identity='';ts312Dirty=false;}
+function ts312Active(){return !!(tsAdminAllowed&&session?.user?.id&&document.querySelector('#administracao.active'));}
+async function ts312Refresh(){
+ if(!ts312Active()||ts312Busy)return;
+ // Do not replace a driver's unsaved assignment or an open editing dialog.
+ if(document.activeElement?.matches('.ts-assign-select')||Array.from(document.querySelectorAll('.ts-assign-select')).some(el=>el.value!==(tsAdminRows.find(b=>String(b.id)===el.dataset.booking)?.driver_id||'')))return;
+ ts312Busy=true;const uid=session.user.id;ts312Dirty=false;
+ try{const se=await current();if(!se||se.user.id!==uid)return;const rows=await req('/rest/v1/bookings?select=*&deleted_at=is.null&order=created_at.desc&limit=150',{headers:{Authorization:'Bearer '+se.access_token}});if(!ts312Active()||session.user.id!==uid)return;if(Array.isArray(rows)&&JSON.stringify(rows)!==JSON.stringify(tsAdminRows)){tsAdminRows=rows;await tsLoadDriverLookup(rows);if(ts312Active()&&session.user.id===uid)tsRenderAdmin();}ts312Last=Date.now();}catch(e){ts312Dirty=true;console.warn('Atualização automática:',e)}finally{ts312Busy=false;}
+}
+function ts312Connect(){
+ if(!ts312Active())return;
+ const token=session.access_token,uid=session.user.id;
+ if(ts312Socket&&ts312Identity===token)return;
+ ts312Stop();ts312Identity=token;
+ const ws=new WebSocket(BASE.replace(/^https:/,'wss:')+'/realtime/v1/websocket?apikey='+encodeURIComponent(KEY)+'&vsn=1.0.0');ts312Socket=ws;let ref=0;
+ const send=(topic,event,payload)=>{if(ws.readyState===1)ws.send(JSON.stringify({topic,event,payload,ref:String(++ref)}));};
+ ws.onopen=()=>{if(ts312Socket!==ws||session?.user?.id!==uid)return;send('realtime:ts_admin_bookings','phx_join',{config:{broadcast:{ack:false,self:false},presence:{key:''},postgres_changes:[{event:'*',schema:'public',table:'bookings'}],private:false},access_token:token});ts312Heartbeat=setInterval(()=>send('phoenix','heartbeat',{}),25000);};
+ ws.onmessage=e=>{if(ts312Socket!==ws||!ts312Active())return;try{const m=JSON.parse(e.data);if(m.event==='postgres_changes'||(m.event==='phx_reply'&&m.payload?.status==='ok'&&m.topic==='realtime:ts_admin_bookings')){ts312Dirty=true;clearTimeout(ts312Timer);ts312Timer=setTimeout(ts312Refresh,300);}}catch{}};
+ ws.onclose=()=>{if(ts312Socket===ws){ts312Socket=null;clearInterval(ts312Heartbeat);ts312Dirty=true;}};
+ ws.onerror=()=>ws.close();
+}
+setInterval(()=>{if(!ts312Active()){if(ts312Socket)ts312Stop();return;}try{ts312Connect();}catch(e){console.warn('Realtime:',e)}if(ts312Dirty||Date.now()-ts312Last>12000)ts312Refresh();},4000);
+document.addEventListener('visibilitychange',()=>{if(!document.hidden&&ts312Active()){ts312Dirty=true;ts312Refresh();}});
 const tokenKey='ts-supabase-session';
 function feedback(t){$('authFeedback').textContent=t}
 function messageError(err){const t=String(err?.message||err||'Erro desconhecido');if(/Invalid login credentials/i.test(t))return 'E-mail ou senha incorretos.';if(/Email not confirmed/i.test(t))return 'Confirme seu e-mail pelo link recebido antes de entrar.';if(/User already registered/i.test(t))return 'Este e-mail já possui uma conta.';if(/Password should be/i.test(t))return 'Senha rejeitada pelas regras de senha do Supabase. Verifique Authentication → Settings → Password Security.';return t}
 async function req(path,opts={}){const r=await fetch(BASE+path,{...opts,headers:{apikey:KEY,'Content-Type':'application/json',...(opts.headers||{})}});const raw=await r.text();let j;try{j=raw?JSON.parse(raw):{}}catch{j={message:raw}}if(!r.ok)throw Error(j.msg||j.error_description||j.message||j.error||`Erro HTTP ${r.status}`);return j}
-function setSession(s){const previous=session?.user?.id;const next=s?.user?.id;if(!next||previous!==next){driverRoleState=null;tsAdminAllowed=false;ts318Rows=[];ts318Trips.clear();ts318Selected=null;ts318PendingFinish=false;tsAdminRows=[];tsAdminDrivers=[];$('driverPanelBookings').textContent='';$('ts318DriverDetail').innerHTML='';$('ts318Confirm').classList.add('hidden');$('driverChangeModal').classList.add('hidden');}session=s?.access_token?s:null;if(session)localStorage.setItem(tokenKey,JSON.stringify(session));else localStorage.removeItem(tokenKey);renderAuth()}
+function setSession(s){const previous=session?.user?.id;const next=s?.user?.id;if(!next||previous!==next){ts312Stop();driverRoleState=null;tsAdminAllowed=false;ts318Rows=[];ts318Trips.clear();ts318Selected=null;ts318PendingFinish=false;tsAdminRows=[];tsAdminDrivers=[];$('driverPanelBookings').textContent='';$('ts318DriverDetail').innerHTML='';$('ts318Confirm').classList.add('hidden');$('driverChangeModal').classList.add('hidden');}session=s?.access_token?s:null;if(session)localStorage.setItem(tokenKey,JSON.stringify(session));else localStorage.removeItem(tokenKey);renderAuth()}
 async function current(){if(!session)return null;if(session.expires_at&&Date.now()/1000>session.expires_at-60){try{const s=await req('/auth/v1/token?grant_type=refresh_token',{method:'POST',body:JSON.stringify({refresh_token:session.refresh_token})});setSession({...s,expires_at:Math.floor(Date.now()/1000)+s.expires_in})}catch{setSession(null);return null}}return session}
 function renderAuth(){const logged=!!session?.user;$('accountButton').textContent=logged?'Minha conta':'Entrar';$('authSigned').classList.toggle('hidden',!logged);$('authForms').classList.toggle('hidden',logged);if(logged){$('authUser').textContent='Conectado como '+(session.user.email||'cliente');if(!$('clientEmail').value)$('clientEmail').value=session.user.email||''}if(document.querySelector('#reservas.active'))loadBookings()}
 function selectMode(m){mode=m;$('tabLogin').classList.toggle('selected',m==='login');$('tabSignup').classList.toggle('selected',m==='signup');$('authSubmit').textContent=m==='login'?'Entrar':'Criar conta';$('authPassword').autocomplete=m==='login'?'current-password':'new-password';feedback('')}
@@ -404,7 +428,7 @@ $('routeTestRun').onclick=async()=>{
  finally{btn.disabled=false}
 };
 const prevNavigate=window.tsNavigate;window.tsNavigate=id=>{prevNavigate(id);if(id==='reservas')loadBookings()};
-function statusPt(v){const map={pending:'Pendente',confirmed:'Confirmada',approved:'Aprovado',paid:'Pago',completed:'Concluída',cancelled:'Cancelada',canceled:'Cancelada',rejected:'Recusado',failed:'Falhou',refunded:'Reembolsado',processing:'Em análise',awaiting_payment:'Aguardando pagamento',partially_paid:'Parcialmente pago'};return map[String(v||'').toLowerCase()]||String(v||'Não informado')}
+function statusPt(v){const map={pending:'Pendente',in_progress:'Em andamento',confirmed:'Confirmada',approved:'Aprovado',paid:'Pago',completed:'Concluída',cancelled:'Cancelada',canceled:'Cancelada',rejected:'Recusado',failed:'Falhou',refunded:'Reembolsado',processing:'Em análise',awaiting_payment:'Aguardando pagamento',partially_paid:'Parcialmente pago'};return map[String(v||'').toLowerCase()]||String(v||'Não informado')}
 window.tsLoadBookings=()=>loadBookings();
 const ts307CopyLabels=new Set(['Nome','Telefone','E-mail','Código da reserva','Observações','Número do voo']);
 const bookingField=(label,value)=>{const valid=value!=null&&String(value).trim()!=='';const copy=valid&&ts307CopyLabels.has(label);return `<div class="booking-field${copy?' ts307-copyable':''}"><span class="booking-label">${esc(label)}</span><strong>${esc(valid?value:'Não informado')}</strong>${copy?`<button type="button" class="ts307-copy" data-ts307-copy="${esc(String(value))}" title="Copiar ${esc(label)}" aria-label="Copiar ${esc(label)}"><svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="8" y="8" width="12" height="12" rx="2"/><path d="M16 8V6a2 2 0 0 0-2-2H6a2 2 0 0 0-2 2v8a2 2 0 0 0 2 2h2"/></svg></button>`:''}</div>`};
@@ -566,9 +590,9 @@ async function tsLoadAdmin(){
    req('/rest/v1/bookings?select=*&deleted_at=is.null&order=created_at.desc&limit=150',{headers}),
    req('/rest/v1/rpc/admin_list_drivers',{method:'POST',headers,body:'{}'})
   ]);
-  tsAdminRows=Array.isArray(bookings)?bookings:[];
+  if(!tsAdminAllowed||session?.user?.id!==s.user.id)return;tsAdminRows=Array.isArray(bookings)?bookings:[];
   tsAdminDrivers=Array.isArray(drivers)?drivers:[];
-  await tsLoadDriverLookup(tsAdminRows);tsRenderAdmin();
+  await tsLoadDriverLookup(tsAdminRows);if(!tsAdminAllowed||session?.user?.id!==s.user.id)return;tsRenderAdmin();ts312Last=Date.now();
  }catch(e){target.textContent='Não foi possível carregar reservas: '+messageError(e)}
 }
 function tsRenderAdmin(){
