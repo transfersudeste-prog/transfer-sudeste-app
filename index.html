@@ -278,7 +278,8 @@ select:disabled{opacity:.65}
     <h2>Resumo da operação</h2>
     <p class="soft-note">Indicadores atualizados a partir das reservas registradas.</p>
 <div class="ts-kpis" id="adminKpis" aria-live="polite"></div>
-<div class="ts315-owner-actions hidden" id="ts315OwnerTools"><button type="button" class="back" id="ts315OwnerRules">Configurar agendamentos</button> <button type="button" class="back" id="ts315OwnerAbout">Editar Sobre nós</button></div>
+<div class="ts315-owner-actions hidden" id="ts315OwnerTools"><button type="button" class="back" id="ts315OwnerRules">Configurar agendamentos</button> </div>
+<div class="ts315-owner-actions hidden" id="ts315AboutTools"><button type="button" class="back" id="ts315AdminAbout">Editar Sobre nós</button></div>
   </div>
   <div class="ts-admin-section hidden" data-admin-section="reservations">
   <div class="ts-panel"><div class="ts-section-title"><div><div class="ts-eyebrow">OPERAÇÃO</div><h2>Gestão de reservas</h2></div><span class="ts-count" id="adminCount">—</span></div>
@@ -333,6 +334,28 @@ select:disabled{opacity:.65}
 #ts313HomeNav,#ts313HistoryNav,#ts316DriverNav{min-width:0;flex:1}
 </style><section class="view" id="motoristaPainel"><div class="ts318-reservations-head"><h1 id="ts319DriverTitle">Reservas</h1><button type="button" class="ts319-detail-close hidden" id="ts319DetailClose" aria-label="Fechar detalhes da reserva" title="Voltar às reservas">×</button></div><div id="ts318DriverList"><p id="driverPanelTitle" class="ts318-driver-status">Verificando cadastro…</p><p id="driverPanelMessage" class="soft-note">Aguarde.</p><div id="driverPanelBookings" class="hidden"></div></div><div id="ts318DriverDetail" class="hidden"></div><button class="back ts318-signout" id="driverPanelSignOut" type="button">Sair da conta</button></section><section class="view" id="motoristaGanhos"><h1>Ganhos</h1><div id="ts314Ganhos"><p class="soft-note">Carregando ganhos…</p></div></section><section class="view" id="motoristaEmpresa"><h1>Empresa</h1><div id="ts314Empresa"><p class="soft-note">Carregando dados da empresa…</p></div></section><section class="view" id="financeiro"><h1>Financeiro</h1><div id="ts314Admin"></div></section><section class="view" id="contato"><div class="hero"><h1>Atendimento</h1><p class="sub">Em breve, acesso direto aos canais oficiais da Transfer Sudeste.</p></div></section><style>
 .ts315-page h1{margin:0 0 14px}
+.ts315-page .ts315-page-title{font-size:2em;line-height:normal;font-weight:700;margin-bottom:14px}
+.ts315-bank-title{margin-top:23px}
+.ts315-about-hero{position:relative;isolation:isolate;overflow:hidden;padding-bottom:4px;overflow-wrap:anywhere}
+.ts315-about-hero.has-photo{padding:18px 16px;border-radius:15px;background:#151515}
+.ts315-about-background{position:absolute;inset:0;z-index:-2;width:100%;height:100%;object-fit:cover}
+.ts315-about-hero.has-photo::before{content:'';position:absolute;inset:0;z-index:-1;background:linear-gradient(105deg,#080808f5 4%,#080808bf 58%,#08080866),linear-gradient(0deg,#080808d9,transparent 60%)}
+.ts315-about-hero h1::after,.ts315-about-section h2::after{content:'';display:block;width:min(170px,52%);height:2px;margin-top:8px;background:linear-gradient(90deg,#d8b773,#d8b77322)}
+.ts315-about-hero p{margin:0;line-height:1.5;white-space:pre-wrap}
+.ts315-about-section{margin-top:22px;overflow-wrap:anywhere}
+.ts315-about-section h2{margin:0 0 12px;color:#d8b773;font-size:clamp(20px,5.3vw,26px)}
+.ts315-about-team{display:block;width:100%;max-height:355px;object-fit:cover;border-radius:15px}
+.ts315-about-services{display:grid;gap:8px}
+.ts315-about-service.f314card{display:flex;align-items:center;gap:13px;margin:0;border-color:#675633;padding:10px 12px}
+.ts315-about-service h3{margin:0 0 3px;font-size:16px}
+.ts315-about-service p{margin:0;color:#eee;font-size:14px;line-height:1.4}
+.ts315-about-icon{display:grid;place-items:center;width:52px;height:52px;flex:0 0 52px;border-radius:11px;background:#2b251b;color:#d8b773;overflow:hidden}
+.ts315-about-icon svg{width:32px;height:32px}
+.ts315-about-icon img{width:100%;height:100%;object-fit:cover}
+.ts315-about-edit-service{min-width:0}
+.ts315-about-field{display:block;margin:12px 0}
+.ts315-about-field>span{display:block;margin-bottom:5px}
+.ts315-about-add,.ts315-about-edit-service button{padding:10px 12px}
 .ts315-page fieldset{min-width:0;padding:0;border:0;margin:0}
 .ts315-page legend{font-size:1.5em;font-weight:700}
 .ts315-quote{margin-top:16px}
@@ -421,8 +444,8 @@ body:has(.ts315-banner:not(.hidden)) .ts315-page.active{padding-bottom:54px}
 </section>
 <section class="view ts315-page" id="clienteReservas"><div class="ts318-reservations-head"><h1>Reservas</h1></div><div id="ts315Reservations"></div></section>
 <section class="view ts315-page" id="clienteHistorico"><div class="ts318-reservations-head"><h1>Histórico</h1></div><div id="ts315History"></div></section>
-<section class="view ts315-page" id="clienteSobre"><h1>Sobre nós</h1><div id="ts315About"></div></section>
-<section class="view ts315-page" id="clienteContato"><h1>Contato</h1><div id="ts315Contact"></div><div id="ts315ContactPix" class="f315company"></div></section>
+<section class="view ts315-page" id="clienteSobre"><div id="ts315About"><h1>Sobre nós</h1></div></section>
+<section class="view ts315-page" id="clienteContato"><h1 class="ts315-page-title">Contato</h1><div id="ts315Contact"></div><div id="ts315ContactPix" class="f315company"></div></section>
 <dialog class="dialog ts315-dialog" id="ts315Dialog" aria-labelledby="ts315DialogTitle">
  <button type="button" class="back ts306-icon-close" id="ts315Close" aria-label="Fechar">×</button>
  <h2 id="ts315DialogTitle"></h2><div id="ts315DialogBody"></div>
@@ -983,6 +1006,7 @@ async function tsCheckAdmin(){
   if(session?.user?.id!==uid)return;tsAdminAllowed=owner===true||admin===true;if(tsAdminAllowed)driverRoleState=null;
   $('adminNav').classList.toggle('hidden',!tsAdminAllowed);
   $('ts315OwnerTools').classList.toggle('hidden',owner!==true);
+  $('ts315AboutTools').classList.toggle('hidden',!tsAdminAllowed);
   if(tsAdminAllowed)void window.ts315LoadDispatchRules?.().catch(()=>{});
  }catch(e){console.warn('Não foi possível validar perfil administrativo:',e)}
  ts299Nav();
@@ -1361,6 +1385,7 @@ const ts315=(()=>{
   resetReservations();
   $('ts315PasswordButton').classList.add('hidden');
   $('ts315OwnerTools').classList.add('hidden');
+  $('ts315AboutTools').classList.add('hidden');
   closeDialog();
   write('ts315Passenger','');write('ts315About','');write('ts315Contact','');write('ts315ContactPix','');
   // A pessoa pode entrar para continuar o formulário iniciado como visitante.
@@ -2313,40 +2338,13 @@ const ts315=(()=>{
    }
   }
  }
- async function renderAbout(){
-  const seq=identityVersion;
-  const host=$('ts315About');
-  if(!isClient()){
-   host.innerHTML='<p class="soft-note">Entre na sua conta para conhecer a Transfer Sudeste.</p><button type="button" class="primary">Entrar ou criar conta</button>';
-   host.querySelector('button').onclick=()=>openAuth(async()=>{if(await checkRole())window.tsNavigate(pages[3])});
-   return;
-  }
-  host.textContent='Carregando dados da empresa…';
-  try{
-   const a=firstRow(await rpc('ts_get_company_about'));
-   if(seq!==identityVersion)return;
-   const title=String(a?.title||'').trim();
-   const description=String(a?.description||'').trim();
-   const textServices=Array.isArray(a?.services)?a.services:String(a?.services||'').split(/\r?\n/);
-   const services=textServices.map(item=>String(item||'').trim()).filter(Boolean);
-   const photo=webUrl(a?.photo_url);
-   const heading=title&&title.toLocaleLowerCase('pt-BR')!=='sobre nós'?`<h2>${esc(title)}</h2>`:'';
-   const institution=description||photo?`<div class="f314card">${heading}
-    ${description?`<p>${esc(description)}</p>`:''}${photo?`<img class="ts315-photo" src="${esc(photo)}" alt="Equipe da Transfer Sudeste">`:''}</div>`:'';
-   const serviceList=services.length?`<div class="f314card"><h2>Serviços</h2><ul>${services.map(item=>'<li>'+esc(item)+'</li>').join('')}</ul></div>`:'';
-   host.innerHTML=institution+serviceList||'<p class="soft-note">As informações institucionais ainda não foram preenchidas.</p>';
-  }catch(err){if(seq===identityVersion)host.textContent=messageError(err)}
- }
- async function ownerForm(type){
+ async function ownerForm(){
   if(!tsAdminAllowed||await rpc('is_owner')!==true)return;
-  const about=type==='about';
   const uid=session?.user?.id;
-  const currentData=firstRow(await rpc(about?'ts_get_company_about':'ts_get_booking_settings'));
+  const currentData=firstRow(await rpc('ts_get_booking_settings'));
   if(uid!==session?.user?.id||!tsAdminAllowed||!currentData)return;
-  const title=about?'Editar Sobre nós':'Configurar agendamentos';
-  const fields=about?[
-   ['title','Título','text'],['description','Texto institucional','textarea'],['services','Serviços','textarea'],['photo_url','URL da foto da equipe','url']
-  ]:[
+  const title='Configurar agendamentos';
+  const fields=[
    ['booking_min_advance_hours','Antecedência mínima (horas)','number',0,1],
    ['booking_cancel_min_hours','Antecedência para cancelar (horas)','number',0,1],
    ['tracking_release_minutes','Antecedência do acompanhamento (minutos)','number',0,1],
@@ -2369,23 +2367,10 @@ const ts315=(()=>{
    const button=e.currentTarget.querySelector('button[type=submit]');
    modalBusy=true;button.disabled=true;
    try{
-    if(about&&values.photo_url.trim()&&!webUrl(values.photo_url.trim()))throw Error('Informe uma URL HTTP ou HTTPS para a foto.');
-    const params=about?{
-     p_title:values.title.trim(),p_description:values.description.trim(),
-     p_services:Array.isArray(currentData.services)?values.services.split(/\r?\n/).map(x=>x.trim()).filter(Boolean):values.services.trim(),
-     p_photo_url:values.photo_url.trim()||null
-    }:Object.fromEntries(Object.entries(values).map(([key,val])=>['p_'+key.replace(/^booking_|^passenger_/,''),val===''?null:Number(val)]));
-    if(about){
-     try{await rpc('ts_owner_update_company_about',params)}
-     catch(err){
-      if(currentData.services!=null||!/malformed array literal|expected JSON array/i.test(messageError(err)))throw err;
-      await rpc('ts_owner_update_company_about',{
-       ...params,p_services:values.services.split(/\r?\n/).map(x=>x.trim()).filter(Boolean)
-      });
-     }
-    }else await rpc('ts_owner_update_booking_settings',params);
+    const params=Object.fromEntries(Object.entries(values).map(([key,val])=>['p_'+key.replace(/^booking_|^passenger_/,''),val===''?null:Number(val)]));
+    await rpc('ts_owner_update_booking_settings',params);
     if(uid===session?.user?.id){
-     if(!about)void loadDispatchRules(true);
+     void loadDispatchRules(true);
      openDialog('Configuração atualizada','<p>Alterações salvas.</p>');
     }
    }catch(err){if(uid===session?.user?.id&&$('ts315OwnerError'))statusError('ts315OwnerError',err)}
@@ -2422,9 +2407,8 @@ const ts315=(()=>{
   await load();
  }
  function initCompany(){
-  for(const [id,type] of [['ts315OwnerAbout','about'],['ts315OwnerRules','rules']]){
-   $(id).onclick=()=>ownerForm(type).catch(err=>openDialog('Configuração indisponível',`<p>${esc(messageError(err))}</p>`));
-  }
+  $('ts315OwnerRules').onclick=()=>ownerForm().catch(err=>openDialog('Configuração indisponível',`<p>${esc(messageError(err))}</p>`));
+  $('ts315AdminAbout').onclick=()=>editAboutPage().catch(err=>openDialog('Configuração indisponível',`<p>${esc(messageError(err))}</p>`));
   $('ts315AdminRatingButton').onclick=()=>void adminRatings();
   $('ts315PasswordButton').onclick=()=>{
    if(!isClient())return;
@@ -2435,6 +2419,128 @@ const ts315=(()=>{
   };
  }
  async function loadDispatchRules(){return window.ts315LoadDispatchRules?.()}
+
+ const aboutIcons={
+  transfer:['Carro','<path d="M3 16v-4l2-2 1.5-4h11l1.5 4 2 2v4M3 16v2h3v-2m12 0v2h3v-2M3 16h18M5 10h14M6 13h2m8 0h2"/>'],
+  'city-tour':['Câmera','<path d="M3 7h5l2-3h4l2 3h5v13H3z"/><circle cx="12" cy="13" r="3.5"/>'],
+  chauffeur:['Motorista','<path d="M6 7l6-4 6 4-2 2H8zm2 2v2a4 4 0 0 0 8 0V9M4 21v-3a3 3 0 0 1 3-3h2l3 3 3-3h2a3 3 0 0 1 3 3v3zm8-3v3"/>'],
+  wedding:['Alianças','<circle cx="8.5" cy="14" r="5.5"/><circle cx="15.5" cy="14" r="5.5"/><path d="m7 6 1.5-2L10 6"/>']
+ };
+ function aboutServices(value){
+  const rows=Array.isArray(value)?value:String(value||'').split(/\r?\n/);
+  return rows.map((item,i)=>{
+   const fallback=Object.keys(aboutIcons)[i]||'transfer';
+   if(typeof item==='string')return {title:item.trim(),description:'',icon:fallback,image_url:''};
+   return {
+    title:String(item?.title||'').trim(),description:String(item?.description||'').trim(),
+    icon:Object.hasOwn(aboutIcons,item?.icon)?item.icon:fallback,image_url:webUrl(item?.image_url)
+   };
+  }).filter(item=>item.title);
+ }
+ async function readAboutPage(){
+  try{return firstRow(await rpc('ts_get_company_about_page'))}
+  catch(err){
+   if(!/could not find the function.*ts_get_company_about_page|schema cache/i.test(messageError(err)))throw err;
+   return firstRow(await rpc('ts_get_company_about'));
+  }
+ }
+ async function renderAbout(){
+  if(!isClient())return;
+  const seq=identityVersion, host=$('ts315About');
+  host.innerHTML='<h1>Sobre nós</h1><p class="soft-note" role="status">Carregando dados da empresa…</p>';
+  try{
+   const data=await readAboutPage();
+   if(seq!==identityVersion||!isClient())return;
+   const title=String(data?.title||'').trim()||'Sobre nós';
+   const description=String(data?.description||'').trim();
+   const hero=webUrl(data?.hero_photo_url), team=webUrl(data?.photo_url);
+   const services=aboutServices(data?.services);
+   host.innerHTML=`<div class="ts315-about-hero${hero?' has-photo':''}">
+    ${hero?`<img class="ts315-about-background" src="${esc(hero)}" alt="">`:''}
+    <h1>${esc(title)}</h1>${description?`<p>${esc(description)}</p>`:''}
+   </div>`+
+    (team?`<section class="ts315-about-section"><h2>${esc(data.team_title||'Nossa equipe')}</h2>
+     <img class="ts315-about-team" src="${esc(team)}" alt="${esc(data.team_title||'Equipe da Transfer Sudeste')}" loading="lazy"></section>`:'')+
+    (services.length?`<section class="ts315-about-section"><h2>${esc(data?.services_title||'Nossos serviços')}</h2>
+     <div class="ts315-about-services">${services.map(service=>{
+      const graphic=service.image_url?`<img src="${esc(service.image_url)}" alt="" loading="lazy">`:
+       `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.55" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">${aboutIcons[service.icon][1]}</svg>`;
+      return `<article class="f314card ts315-about-service"><span class="ts315-about-icon">${graphic}</span>
+       <div><h3>${esc(service.title)}</h3>${service.description?`<p>${esc(service.description)}</p>`:''}</div></article>`;
+     }).join('')}</div></section>`:'')+
+    (!description&&!team&&!services.length?'<p class="soft-note">As informações institucionais ainda não foram preenchidas.</p>':'');
+  }catch(err){
+   if(seq===identityVersion&&isClient())host.innerHTML=`<h1>Sobre nós</h1><p role="alert">${esc(messageError(err))}</p>`;
+  }
+ }
+ function aboutEditField(name,label,value='',type='text',required=false){
+  const attribute=`name="${name}"${required?' required':''}`;
+  const input=type==='textarea'?`<textarea ${attribute} rows="3">${esc(value||'')}</textarea>`:
+   `<input ${attribute} type="${type}" value="${esc(value||'')}">`;
+  return `<label class="ts315-about-field"><span>${label}</span>${input}</label>`;
+ }
+ function aboutServiceFields(service={}){
+  const options=Object.entries(aboutIcons).map(([key,[label]])=>
+   `<option value="${key}"${service.icon===key?' selected':''}>${label}</option>`).join('');
+  return `<fieldset class="f314card ts315-about-edit-service" data-about-service>
+   <legend>Serviço</legend>
+   ${aboutEditField('title','Nome do serviço',service.title,'text',true)}
+   ${aboutEditField('description','Descrição do serviço',service.description,'textarea')}
+   <label class="ts315-about-field"><span>Ícone do serviço</span><select name="icon">${options}</select></label>
+   ${aboutEditField('image_url','URL da imagem do serviço (opcional)',service.image_url,'url')}
+   <button type="button" class="back" data-about-remove>Remover serviço</button>
+  </fieldset>`;
+ }
+ async function editAboutPage(){
+  if(!tsAdminAllowed)return;
+  const uid=session?.user?.id, source=activePage();
+  const data=firstRow(await rpc('ts_get_company_about_page'));
+  if(uid!==session?.user?.id||!tsAdminAllowed||source!==activePage())return;
+  if(!data)throw Error('Configuração da empresa indisponível.');
+  const host=openDialog('Editar Sobre nós',`<form id="ts315AboutEdit">
+   ${aboutEditField('title','Título da página',data.title,'text',true)}
+   ${aboutEditField('description','Texto institucional',data.description,'textarea')}
+   ${aboutEditField('hero_photo_url','URL da imagem de fundo',data.hero_photo_url,'url')}
+   ${aboutEditField('team_title','Título da seção da equipe',data.team_title||'Nossa equipe','text',true)}
+   ${aboutEditField('photo_url','URL da foto da equipe',data.photo_url,'url')}
+   ${aboutEditField('services_title','Título da seção de serviços',data.services_title||'Nossos serviços','text',true)}
+   <div id="ts315AboutServicesEdit">${aboutServices(data.services).map(aboutServiceFields).join('')}</div>
+   <button type="button" class="back ts315-about-add" id="ts315AboutAddService">Adicionar serviço</button>
+   <p class="field-error" id="ts315AboutError" role="alert"></p>
+   <button type="submit" class="primary">Salvar alterações</button>
+  </form>`);
+  const form=host.querySelector('form'), services=$('ts315AboutServicesEdit');
+  $('ts315AboutAddService').onclick=()=>{
+   services.insertAdjacentHTML('beforeend',aboutServiceFields());
+   services.lastElementChild.querySelector('input').focus();
+  };
+  services.onclick=e=>{
+   const button=e.target.closest('[data-about-remove]');
+   if(button)button.closest('[data-about-service]').remove();
+  };
+  form.onsubmit=async e=>{
+   e.preventDefault();
+   if(modalBusy||uid!==session?.user?.id||!tsAdminAllowed)return;
+   const values=(scope,keys)=>Object.fromEntries(keys.map(key=>[key,scope.querySelector(`[name="${key}"]`).value.trim()]));
+   const page=values(form,['title','description','hero_photo_url','team_title','photo_url','services_title']);
+   page.services=[...services.children].map(item=>values(item,['title','description','icon','image_url']));
+   const photos=[page.hero_photo_url,page.photo_url,...page.services.map(item=>item.image_url)];
+   if(photos.some(url=>url&&!webUrl(url))){
+    write('ts315AboutError','Use endereços HTTP ou HTTPS para as imagens.');return;
+   }
+   const save=form.querySelector('button[type=submit]');
+   modalBusy=true;save.disabled=true;
+   write('ts315AboutError','');
+   try{
+    await rpc('ts_admin_update_company_about_page',{p_page:page});
+    if(uid===session?.user?.id&&tsAdminAllowed){
+     openDialog('Sobre nós atualizado','<p>Alterações salvas.</p>');
+    }
+   }catch(err){
+    if(uid===session?.user?.id&&$('ts315AboutError'))statusError('ts315AboutError',err);
+   }finally{modalBusy=false;save.disabled=false}
+  };
+ }
 
  return {init,sessionChanged,applyNav,checkRole,isClient,rpc,phoneField,readPhone,loadProfile,closeAccount:()=>window.tsNavigate(accountReturn)};
 })();
@@ -3860,13 +3966,14 @@ const companyQrIcon='<svg viewBox="0 0 24 24" width="23" height="23" fill="none"
 function companyField(label,value){
  return '<div class="f315field"><span>'+esc(label)+'</span><strong>'+esc(String(value??'—'))+'</strong></div>';
 }
-function companyPixCard(data,actionAttr='data-f314'){
- return card('Dados bancários',companyField('Titular',data.pix_holder_name)+companyField('Banco',data.pix_bank_name)+
+function companyPixCard(data,actionAttr='data-f314',includeHeading=true){
+ const content=companyField('Titular',data.pix_holder_name)+companyField('Banco',data.pix_bank_name)+
   '<div class="f315pix"><span>Chave PIX</span><button type="button" '+actionAttr+'="copy">Copiar chave PIX</button>'+
-  '<button type="button" '+actionAttr+'="qr" aria-label="Exibir QR Code PIX">'+companyQrIcon+'</button></div>');
+  '<button type="button" '+actionAttr+'="qr" aria-label="Exibir QR Code PIX">'+companyQrIcon+'</button></div>';
+ return includeHeading?card('Dados bancários',content):'<section class="f314card" aria-labelledby="ts315BankTitle">'+content+'</section>';
 }
 window.tsCompanyPix={
- card:data=>companyPixCard(data,'data-client-pix'),
+ card:data=>'<h2 class="ts315-page-title ts315-bank-title" id="ts315BankTitle">Dados Bancários</h2>'+companyPixCard(data,'data-client-pix',false),
  async copy(data){
   if(!data?.pix_key)throw Error('Chave PIX indisponível.');
   await navigator.clipboard.writeText(data.pix_key);
