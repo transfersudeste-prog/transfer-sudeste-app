@@ -1,0 +1,235 @@
+:root[data-adm-geral-session] {
+  --adm-background: #090909;
+  --adm-card: #191919;
+  --adm-secondary: #141414;
+  --adm-field: #101010;
+  --adm-nav: #111111;
+  --adm-gold: #D5B36D;
+  --adm-gold-muted: #B99A55;
+  --adm-text: #F4F1EB;
+  --adm-muted: #A5A19A;
+  --adm-border: #39332A;
+  --adm-gold-border: #665437;
+  --adm-positive: #83BD97;
+  --adm-warning: #E1A269;
+  --adm-danger: #E28282;
+  --adm-width: 960px;
+  --adm-radius: 16px;
+  --adm-touch: 44px;
+  --adm-gutter: clamp(12px, 4vw, 24px);
+  --adm-nav-height: 72px;
+}
+
+html[data-adm-geral-session] .nav,
+.adm-geral-nav[hidden],
+#admGeralBack[hidden],
+html:not([data-adm-geral-layout="mais"]) #admGeralMais,
+#administracao[data-adm-geral-section] .ts-admin-tabs,
+#administracao[data-adm-geral-section]:not([data-adm-geral-section="configuracoes"]) :is(#ts315OwnerTools, #ts315AboutTools, #v292Settings),
+#administracao[data-adm-geral-section="configuracoes"] :is(.ts-dash-head, #adminKpis),
+#administracao[data-adm-geral-section="configuracoes"] [data-admin-section="overview"] > :is(h2, .soft-note) {
+  display: none !important;
+}
+
+html[data-adm-geral-layout] body {
+  background: var(--adm-background);
+  color: var(--adm-text);
+}
+
+html[data-adm-geral-layout] .app {
+  box-sizing: border-box;
+  max-width: var(--adm-width);
+  padding-inline-start: max(var(--adm-gutter), env(safe-area-inset-left));
+  padding-inline-end: max(var(--adm-gutter), env(safe-area-inset-right));
+  padding-bottom: calc(var(--adm-nav-height) + 20px + env(safe-area-inset-bottom));
+}
+
+html[data-adm-geral-layout] .app > .view.active {
+  min-width: 0;
+  overflow-wrap: anywhere;
+}
+
+.adm-geral-nav {
+  position: fixed;
+  z-index: 4;
+  inset: auto 0 0;
+  display: grid;
+  grid-template-columns: repeat(5, minmax(0, 1fr));
+  min-height: var(--adm-nav-height);
+  padding-block: 7px calc(7px + env(safe-area-inset-bottom));
+  padding-inline: max(env(safe-area-inset-left), 4px, (100% - var(--adm-width)) / 2)
+    max(env(safe-area-inset-right), 4px, (100% - var(--adm-width)) / 2);
+  border-top: 1px solid var(--adm-border);
+  background: var(--adm-nav);
+}
+
+.adm-geral-nav button {
+  display: grid;
+  justify-items: center;
+  align-content: center;
+  gap: 5px;
+  min-width: 0;
+  min-height: var(--adm-touch);
+  padding: 4px 0;
+  border: 0;
+  border-radius: 8px;
+  background: transparent;
+  color: var(--adm-muted);
+  font: inherit;
+  font-size: clamp(.6875rem, 3.25vw, .875rem);
+  font-weight: 600;
+  line-height: 1.25;
+  letter-spacing: 0;
+  cursor: pointer;
+}
+
+.adm-geral-nav button[aria-current="page"] {
+  color: var(--adm-gold);
+}
+
+.adm-geral-nav svg { width: 23px; height: 23px; }
+
+.adm-geral-row,
+.adm-geral-back,
+.adm-geral-button {
+  min-height: var(--adm-touch);
+  border: 1px solid var(--adm-gold-border);
+  border-radius: 12px;
+  background: var(--adm-secondary);
+  color: var(--adm-gold);
+  font: inherit;
+  font-weight: 700;
+  letter-spacing: 0;
+  cursor: pointer;
+}
+
+.adm-geral-back {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  margin: 0 0 14px;
+  padding: 8px 14px;
+}
+
+.adm-geral-row {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr) auto;
+  align-items: center;
+  gap: 12px;
+  width: 100%;
+  padding: 12px;
+  border-color: var(--adm-border);
+  color: var(--adm-text);
+  text-align: start;
+}
+
+.adm-geral-row svg, .adm-geral-back svg { width: 20px; height: 20px; color: var(--adm-gold); }
+.adm-geral-row > span:last-child { color: var(--adm-muted); }
+
+.adm-geral-card {
+  min-width: 0;
+  padding: clamp(14px, 3.5vw, 22px);
+  border: 1px solid var(--adm-border);
+  border-radius: var(--adm-radius);
+  background: var(--adm-card);
+}
+
+.adm-geral-heading, .adm-geral-card h2 { margin: 0 0 14px; }
+.adm-geral-card h2 { font-size: 1.125rem; }
+.adm-geral-more.active { display: grid; gap: 14px; }
+.adm-geral-more.active > h1 { grid-column: 1 / -1; margin-bottom: 0; }
+#admGeralFinanceLinks { margin-bottom: 14px; }
+
+html[data-adm-geral-layout] :is(#home, #administracao, #financeiro) :is(.card, .ts-dash-head, .ts-kpi, .ts-booking-card) {
+  background: var(--adm-card);
+  border-color: var(--adm-border);
+  border-radius: var(--adm-radius);
+}
+
+html[data-adm-geral-layout] :is(#home, #administracao, #financeiro) :is(input, select, textarea) {
+  min-width: 0;
+  max-width: 100%;
+  font-size: max(16px, 1rem) !important;
+}
+
+html[data-adm-geral-layout] :is(#home, #administracao, #financeiro) :is(input:not([type="checkbox"], [type="radio"]), select, textarea) {
+  background-color: var(--adm-field);
+  border-color: var(--adm-border);
+}
+
+html[data-adm-geral-layout] :is(#home, #administracao, #financeiro) :is(.ts-kpi, .ts-booking-price) {
+  font-variant-numeric: tabular-nums;
+}
+
+html[data-adm-geral-layout] #adminBookings .ts-booking-footer {
+  flex-wrap: wrap !important;
+}
+
+html[data-adm-geral-session] :is(.adm-geral-nav, .adm-geral-dialog, [data-adm-geral-layout] .view) :is(button, input, select, textarea):focus-visible {
+  outline: 2px solid var(--adm-gold);
+  outline-offset: 2px;
+}
+
+.adm-geral-dialog {
+  box-sizing: border-box;
+  width: min(465px, calc(100% - 28px));
+  max-height: calc(100dvh - 32px - env(safe-area-inset-top) - env(safe-area-inset-bottom));
+  overflow: auto;
+  padding: clamp(16px, 5vw, 26px);
+  border: 1px solid var(--adm-gold-border);
+  border-radius: var(--adm-radius);
+  background: var(--adm-card);
+  color: var(--adm-text);
+}
+
+.adm-geral-dialog::backdrop { background: rgb(0 0 0 / 72%); }
+.adm-geral-dialog h2 { margin: 0; }
+.adm-geral-dialog p { color: var(--adm-muted); line-height: 1.5; }
+.adm-geral-actions { display: grid; gap: 8px; }
+.adm-geral-button { padding: 10px 14px; }
+.adm-geral-primary { background: var(--adm-gold); color: var(--adm-background); }
+
+@media (min-width: 640px) {
+  .adm-geral-more.active { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .adm-geral-actions { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+}
+
+html[data-adm-geral-layout][data-adm-geral-keyboard] .adm-geral-nav {
+  bottom: var(--adm-keyboard-bottom);
+  --adm-nav-height: 54px;
+  padding-block: 3px;
+}
+
+html[data-adm-geral-layout][data-adm-geral-keyboard] .app {
+  padding-bottom: calc(var(--adm-nav-height) + var(--adm-keyboard-bottom) + 26px);
+}
+
+html[data-adm-geral-layout][data-adm-geral-keyboard] :is(#ts315Dialog, .adm-geral-dialog) {
+  max-height: calc(var(--adm-viewport-height) - 28px);
+}
+
+/* Despacho exclusivo do ADM Geral; o formulário legado permanece intacto. */
+#ownerDispatch[hidden], html[data-adm-geral-layout="despacho"] #wizardCard {display:none!important}
+#ownerDispatch {color:var(--adm-text);font-family:-apple-system,BlinkMacSystemFont,Arial,sans-serif}
+#ownerDispatch h1 {font-size:25px;letter-spacing:-.8px;margin:0 0 6px}
+#ownerDispatch p {color:var(--adm-muted);font-size:13px;line-height:1.5}
+.owner-dispatch-card {background:var(--adm-card);border:1px solid var(--adm-border);border-radius:15px;padding:13px;display:grid;gap:12px}
+.owner-dispatch-line,.owner-dispatch-actions {display:flex;justify-content:space-between;gap:9px;align-items:center}
+.owner-dispatch-line span {color:var(--adm-muted);font-size:13px}
+.owner-dispatch-progress {display:grid;grid-template-columns:repeat(8,minmax(0,1fr));gap:4px}
+.owner-dispatch-progress i {height:4px;background:#39332A;border-radius:4px}
+.owner-dispatch-progress i.done {background:var(--adm-gold)}
+.owner-dispatch-card h2 {font-size:18px;margin:0}
+.owner-dispatch-card fieldset {border:0;padding:0;margin:0;display:grid;gap:9px;min-width:0}
+.owner-dispatch-card legend {color:var(--adm-muted);font-size:12px;margin-bottom:8px}
+.owner-dispatch-choice,.owner-dispatch-actions button {min-height:44px;border:1px solid var(--adm-gold-border);border-radius:10px;background:#191713;color:var(--adm-gold);padding:10px;font:inherit}
+.owner-dispatch-choice {display:flex;align-items:center;gap:10px;margin:0;cursor:pointer}
+.owner-dispatch-choice input {width:18px;height:18px;min-height:0;margin:0;accent-color:#111}
+.owner-dispatch-choice:has(input:checked),.owner-dispatch-actions .owner-dispatch-primary {background:var(--adm-gold);color:#111;font-weight:700}
+.owner-dispatch-choice:has(input:disabled),.owner-dispatch-actions button:disabled {opacity:.55;cursor:not-allowed}
+.owner-dispatch-actions button {flex:1}
+.owner-dispatch-fields {display:grid;gap:12px;min-width:0}
+.owner-dispatch-fields label {display:grid;gap:6px;color:var(--adm-muted);font-size:13px}
+.owner-dispatch-fields input,.owner-dispatch-fields textarea {width:100%;min-width:0;min-height:44px;background:#101010;color:#F4F1EB;border:1px solid #4B4335;border-radius:9px;padding:10px;font:inherit;font-size:16px;color-scheme:dark}
+.owner-dispatch-fields button {min-height:44px;border:1px solid var(--adm-gold-border);border-radius:10px;background:#191713;color:var(--adm-gold);padding:9px;font:inherit}
+.owner-dispatch-fields button:disabled {opacity:.55}

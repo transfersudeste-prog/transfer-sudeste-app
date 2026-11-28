@@ -1,0 +1,26 @@
+.ts-queue-admin{margin:16px 0}
+.ts-queue-admin small{display:block;color:var(--muted,#aaa);margin-top:8px}
+.ts-queue-booking{border:1px solid #57472e;border-radius:12px;background:#201b14;padding:12px;margin:12px 0}
+.ts-queue-booking strong,.ts-queue-clock strong{color:#e9c77c}
+.ts-queue-booking p{margin:5px 0}
+.ts-queue-booking ul{padding-left:22px;margin:8px 0}
+.ts-queue-booking button{margin-top:10px}
+.ts-queue-dialog{max-height:min(86dvh,760px);overflow:auto}
+.ts-queue-pick,.ts-queue-actions{display:flex;align-items:center;gap:10px;flex-wrap:wrap}
+.ts-queue-pick select{flex:1 1 180px;min-width:0}
+.ts-queue-pick button,.ts-queue-actions button{width:auto;margin:0}
+.ts-queue-actions button{flex:1 1 115px}
+.ts-queue-actions{padding:10px 0;position:sticky;bottom:-1px;background:#202020}
+.ts-queue-clock{display:flex;justify-content:space-between;gap:12px;margin:0 0 13px;font-variant-numeric:tabular-nums}
+.ts-queue-fields{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,150px),1fr));gap:5px 12px;overflow-wrap:anywhere;margin-top:12px}
+#tsQueueAccept{background:#206e4c;color:#fff;border:1px solid #439770}
+#tsQueueDecline,#tsQueueReleaseConfirm{background:#8a3636;color:#fff;border:1px solid #b45d5d}
+#tsQueueOffer button:disabled{opacity:.5}
+.ts-queue-release{width:100%;margin-bottom:10px;color:#f3b8b8}
+#tsQueueOrder{padding-left:24px}
+#tsQueueOrder li{padding:8px 0;border-bottom:1px solid #3a3328}
+#tsQueueOrder li>span{display:inline-block}
+#tsQueueOrder small{display:block;color:#bcb1a1}
+.ts-queue-move{display:flex;gap:5px;margin-top:6px;flex-wrap:wrap}
+.ts-queue-move button{width:auto;padding:4px 12px;margin:0}
+body:has(#tsQueueOfferBar:not(.hidden)) :is(#motoristaPainel,#motoristaGanhos,#motoristaEmpresa).active{padding-bottom:70px}

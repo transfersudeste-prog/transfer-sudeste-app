@@ -1,0 +1,208 @@
+html:not([data-adm-geral-layout="inicio"]) #admGeralOperations,
+html[data-adm-geral-layout="inicio"] #administracao > .ts-dashboard,
+html[data-adm-geral-results="inicio"] #admOpsDashboard,
+html[data-adm-geral-results="reservas"] #administracao > .ts-dashboard,
+html[data-adm-geral-results="motoristas"] #administracao > :is(.ts-dashboard, #admGeralBack),
+html[data-adm-geral-results="financeiro"] #financeiro > :is(#admGeralFinanceLinks, #ts314Admin),
+#admGeralOperations [hidden],
+.adm-ops-results [hidden] {
+  display: none !important;
+}
+
+.adm-ops-dashboard, .adm-ops-content { display: grid; gap: 12px; }
+.adm-ops-dashboard { --adm-radius: 15px; }
+.adm-ops-intro { display: flex; justify-content: space-between; align-items: flex-start; gap: 8px; }
+.adm-ops-intro h1 { font-size: clamp(1.625rem, 6vw, 2.125rem); margin: 7px 0 10px; letter-spacing: -.04em; }
+#admOpsTitle:focus, #admOpsResultsTitle:focus { outline: none; }
+.adm-ops-intro p { margin: 0; color: var(--adm-muted); font-size: .9rem; }
+.adm-ops-intro .adm-ops-eyebrow {
+  color: var(--adm-gold);
+  font-size: .7rem;
+  font-weight: 800;
+  letter-spacing: .16em;
+  text-transform: uppercase;
+}
+
+.adm-ops-intro button { align-self: center; min-width: var(--adm-touch); padding: 5px; border-radius: 10px; }
+.adm-ops-dashboard svg, .adm-ops-results svg { width: 18px; height: 18px; color: var(--adm-gold); vertical-align: middle; }
+
+.adm-ops-filters {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 5px;
+  border-radius: 15px;
+  padding: 4px;
+  background: var(--adm-secondary);
+}
+
+.adm-ops-filters > button, .adm-ops-inline {
+  min-height: var(--adm-touch);
+  padding: 6px 8px;
+  border: 1px solid transparent;
+  border-radius: 10px;
+  background: transparent;
+  color: var(--adm-muted);
+  font: inherit;
+  font-size: .875rem;
+  font-weight: 750;
+  line-height: 1.2;
+  letter-spacing: 0;
+}
+
+.adm-ops-filters > button[aria-pressed="true"], .adm-ops-inline[aria-pressed="true"] {
+  background: #30271a;
+  color: var(--adm-gold);
+}
+
+.adm-ops-inline { color: var(--adm-gold); }
+.adm-ops-period-tools { display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 0 6px; }
+#admOpsDates:not([hidden]) { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px; }
+#admOpsDates label { margin: 0; min-width: 0; color: var(--adm-muted); }
+#admOpsDates input { display: block; box-sizing: border-box; width: 100%; margin: 6px 0 0; min-height: 44px; padding: 7px; }
+#admOpsDates button { grid-column: 1 / -1; padding: 8px 12px; }
+#admOpsDates input::-webkit-date-and-time-value { text-align: start; }
+
+.adm-ops-period-caption, .adm-ops-status, .adm-ops-note {
+  margin: 0;
+  color: var(--adm-muted);
+  font-size: .8125rem;
+  line-height: 1.45;
+}
+.adm-ops-note:not(:empty) { margin-top: 8px; }
+.adm-ops-status:empty { display: none; }
+.adm-ops-status { margin-block: -8px 1px; }
+.adm-ops-content h2 { margin: 0 0 8px; font-size: 1.1rem; }
+.adm-ops-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 9px; }
+
+.adm-ops-kpi {
+  position: relative;
+  display: grid;
+  align-content: space-between;
+  gap: 7px;
+  min-width: 0;
+  min-height: 105px;
+  padding: 11px;
+  color: var(--adm-text);
+  font: inherit;
+  text-align: start;
+  letter-spacing: 0;
+  line-height: 1.25;
+}
+.adm-ops-kpi > span:first-child { padding-right: 12px; color: var(--adm-muted); font-size: .85rem; font-weight: 650; }
+.adm-ops-kpi strong { font-size: clamp(1.3rem, 6vw, 1.7rem); letter-spacing: -.035em; }
+.adm-ops-kpi small { font-size: .75rem; color: var(--adm-muted); }
+.adm-ops-kpi > .adm-ops-icon { position: absolute; inset: 11px 7px auto auto; }
+.adm-ops-kpi .adm-ops-icon svg { width: 12px; height: 12px; }
+.adm-ops-kpi [data-unavailable] { font-size: 1rem; letter-spacing: normal; color: var(--adm-muted); }
+.adm-ops-kpi:disabled { opacity: .68; }
+
+.adm-ops-hero { padding: 8px 13px; }
+.adm-ops-hero .adm-ops-kpi {
+  display: grid;
+  width: 100%;
+  min-height: var(--adm-touch);
+  padding: 9px 26px 9px 0;
+  border: 0;
+  border-radius: 10px;
+  background: transparent;
+}
+.adm-ops-hero [data-adm-drill="gross"] { align-content: center; }
+.adm-ops-hero [data-adm-drill="gross"] strong { color: var(--adm-gold); font-size: clamp(1.65rem, 7.6vw, 2.05rem); }
+.adm-ops-hero [data-adm-drill="forecast"] { grid-template-columns: minmax(0, 1fr) auto; align-items: baseline; }
+.adm-ops-hero [data-adm-drill="forecast"] strong { font-size: 1rem; letter-spacing: 0; }
+.adm-ops-hero [data-adm-drill="forecast"] small { grid-column: 1 / -1; }
+.adm-ops-hero small { font-size: .72rem; }
+.adm-ops-financial .adm-ops-kpi strong:not([data-unavailable]), .adm-ops-money {
+  color: var(--adm-gold);
+  font-variant-numeric: tabular-nums;
+}
+
+.adm-ops-list { display: grid; gap: 8px; }
+.adm-ops-item {
+  margin: 0;
+  padding: 12px;
+  min-width: 0;
+  border: 1px solid var(--adm-border);
+  border-radius: 15px;
+  background: var(--adm-card);
+  font-size: .875rem;
+}
+
+.adm-ops-item-head { display: flex; justify-content: space-between; align-items: baseline; flex-wrap: wrap; gap: 6px 10px; }
+.adm-ops-item-head h2 { margin-bottom: 8px; }
+.adm-ops-tag {
+  display: inline-block;
+  padding: 3px 7px;
+  border-radius: 6px;
+  background: #29241b;
+  color: var(--adm-gold);
+  font-size: .75rem;
+  font-weight: 650;
+}
+
+.adm-ops-booking-meta, .adm-ops-trip { margin: 8px 0; }
+.adm-ops-booking-meta { color: var(--adm-muted); }
+.adm-ops-trip { font-weight: 650; }
+.adm-ops-item-head .adm-ops-booking-meta { margin-block: 0; }
+.adm-ops-money { font-size: 1.125rem; font-weight: 800; }
+.adm-ops-detail-link {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 4px;
+  width: 100%;
+  padding: 7px 10px;
+  margin-top: 10px;
+  border-radius: 10px;
+}
+
+.adm-ops-alerts .adm-ops-list { gap: 0; }
+.adm-ops-alert { background: transparent; padding: 0; border: 0; border-radius: 0; }
+.adm-ops-alert + .adm-ops-alert { border-top: 1px solid var(--adm-border); }
+.adm-ops-alert-action {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  width: 100%;
+  min-height: var(--adm-touch);
+  padding: 10px 0;
+  background: transparent;
+  border: 0;
+  color: var(--adm-text);
+  text-align: start;
+  font: inherit;
+  letter-spacing: 0;
+}
+.adm-ops-alert-text { flex: 1; min-width: 0; }
+.adm-ops-alert-text small { display: block; margin-top: 5px; color: var(--adm-muted); }
+.adm-ops-alert[data-severity="1"] .adm-ops-tag { color: var(--adm-danger); }
+.adm-ops-alert[data-severity="2"] .adm-ops-tag { color: var(--adm-warning); }
+.adm-ops-more-indicators { grid-column: 1 / -1; }
+.adm-ops-more-indicators > section { margin-top: 14px; }
+.adm-ops-coverage { margin-top: 4px; color: var(--adm-muted); font-size: .8125rem; line-height: 1.45; }
+.adm-ops-coverage summary, .adm-ops-more-indicators summary { min-height: var(--adm-touch); cursor: pointer; align-content: center; }
+.adm-ops-coverage p { margin-block: 4px; }
+.adm-ops-result-actions { display: flex; gap: 8px; flex-wrap: wrap; margin: 0 0 12px; }
+.adm-ops-result-actions button, .adm-ops-results [data-adm-results-action="retry"] { padding: 7px 10px; }
+.adm-ops-results .adm-ops-list + nav { margin: 12px 0 0; }
+.adm-ops-toast:not([hidden]) {
+  position: fixed;
+  z-index: 10;
+  inset: auto max(12px, env(safe-area-inset-right)) calc(88px + env(safe-area-inset-bottom)) max(12px, env(safe-area-inset-left));
+  max-width: 480px;
+  margin: 0 auto;
+  padding: 12px;
+  border: 1px solid var(--adm-gold-border);
+  border-radius: 10px;
+  background: var(--adm-card);
+  color: var(--adm-text);
+}
+
+#admOpsAlertsHeading { scroll-margin-top: 105px; }
+@media (min-width: 660px) {
+  .adm-ops-content { grid-template-columns: repeat(2, minmax(0, 1fr)); align-items: start; gap: 14px; }
+  .adm-ops-hero, .adm-ops-quick { grid-column: 1 / -1; }
+  .adm-ops-grid { grid-template-columns: repeat(4, minmax(0, 1fr)); }
+  #admOpsDates:not([hidden]) { grid-template-columns: repeat(2, minmax(0, 1fr)) auto; align-items: end; }
+  #admOpsDates button { grid-column: auto; }
+}
