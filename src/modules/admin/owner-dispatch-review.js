@@ -18,16 +18,14 @@ export function reviewIssues(data){
 }
 export function reviewCards(data){
  const [s,r,b,p,v,pay,a]=data;const totals=summarizeValues(v)||{};
- const contact=c=>[['Nome',c?.name],['País',c?.country],['Telefone',c?.phone],['E-mail',c?.email]];
+ const contact=c=>[['Nome',c?.name],['País',c?.country],['Telefone',c?.phone]];
  return [
  [0,'Serviço',[['Categoria',s.service]]],
- [1,'Trajeto',[['Data',r.date],['Horário',r.time],['Origem',r.origin],...(r.stops||[]).map((x,i)=>[`Parada ${i+1}`,`${x.address} · ${x.minutes} min`]),['Destino',r.destination],['Distância',Number.isFinite(r.distance?.km)?`${r.distance.km.toFixed(1)} km`:null],['Informações complementares',r.notes]]],
- [2,'Embarque',[['Passageiros',b.passengers],['Bagagens',b.luggage],['Voo',b.flight],['Necessidades especiais',b.specialNeeds],['Observações',b.notes]]],
- [3,'Contratante',[['Tipo',p.mode==='registered'?'Cliente cadastrado':'Externo'],...contact(p.contractor),['Origem da solicitação',p.source]]],
- [3,'Passageiro',contact(p.samePassenger?p.contractor:p.passenger)],
+ [1,'Trajeto',[['Data',r.date?.split('-').reverse().join('/')],['Horário',r.time],['Origem',r.origin],...(r.stops||[]).map((x,i)=>[`Parada ${i+1}`,`${x.address} · ${x.minutes} min`]),['Destino',r.destination],['Distância',Number.isFinite(r.distance?.km)?`${r.distance.km.toFixed(1)} km`:null]]],
+ [2,'Embarque',[['Passageiros',b.passengers],['Bagagens',b.luggage],['Voo',b.flight],['Observações',b.notes]]],
+ [3,'Cliente',[['Tipo',p.mode==='registered'?'Cliente cadastrado':'Externo'],...contact(p.contractor),['Origem da solicitação',p.source]]],
  [4,'Valores',[['Original',money(totals.original)],['Desconto',money(totals.discount)],['Acréscimo',money(totals.addition)],['Final',money(totals.final)],['Comissão',money(totals.commission)],['Motorista',money(totals.driver)],['Justificativa',v.reason]]],
  [5,'Pagamento',[['Forma',label(PAYMENT_METHODS,pay.method)],['Situação declarada',label(PAYMENT_STATES,pay.status)],['Recebedor',label(PAYMENT_RECIPIENTS,pay.recipient)]]],
- [6,'Designação',[['Modalidade',label(ASSIGNMENT_MODES,a.mode)],['Motorista',a.driverId]]],
- [3,'Observações',[['Internas',p.internalNotes],['Compartilhadas',p.sharedNotes]]]
+ [6,'Designação',[['Modalidade',label(ASSIGNMENT_MODES,a.mode)],['Motorista',a.driverId]]]
  ];
 }

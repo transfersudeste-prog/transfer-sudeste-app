@@ -230,3 +230,7 @@ html[data-adm-geral-layout][data-adm-geral-keyboard] :is(#ts315Dialog, .adm-gera
 
 #ownerDispatch .wizard-actions:has(.owner-dispatch-back.hidden) {display:block;}
 #ownerDispatch .wizard-actions .owner-dispatch-primary {width:100%;}
+
+#ownerDispatch[data-screen="1"] .client-itinerary {display:block;}
+#ownerDispatch[data-screen="1"] .client-datetime input {margin:0;}
+#ownerDispatch[data-screen="1"] .ts315-stop [hidden] {display:none!important;}

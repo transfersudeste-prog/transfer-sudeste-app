@@ -1,3 +1,4 @@
+import {interfaceIcon as icon} from '../../shared/components/interface-icons.js';
 import {buildDispatchPayload} from './owner-dispatch-payload.js';
 import {createConfirmationAttempt,isDispatchRejection} from './owner-dispatch-confirmation.js';
 import {reviewCards,reviewIssues} from './owner-dispatch-review.js';
@@ -57,19 +58,24 @@ export function installOwnerDispatch({isOwner,searchClients,loadCommission,loadA
       card.append(group);next.disabled=!selected;next.onclick=()=>{if(isOwner()){draft.next((_,fields)=>categories().some(c=>c.enabled&&c.name===fields.service));render();}};
     }else if(step===1){
       const r={stops:[],...data[1]};
-      const fields=document.createElement('div');fields.className='owner-dispatch-fields';
       const status=document.createElement('p');status.setAttribute('role','status');
-      const refresh=()=>{next.disabled=!validateRoute(r)||!r.distance;status.textContent=r.distance?`Distância calculada: ${r.distance.km.toFixed(1)} km`:'Distância ainda não calculada.';};
-      const save=()=>{if(!isOwner()||renderId!==revision)return;draft.save(r);refresh();};
       let request=0;
-      const change=()=>{request++;r.distance=null;save();};
-      const field=(parent,label,type,value,onchange)=>{const wrap=document.createElement('label');wrap.textContent=label;const el=document.createElement(type==='textarea'?'textarea':'input');if(type!=='textarea')el.type=type;el.value=value??'';el.oninput=()=>onchange(el.value);wrap.append(el);parent.append(wrap);return el;};
-      const dates=document.createElement('div');dates.className='ts315-grid';fields.append(dates);for(const [key,label,type] of [['date','Data *','date'],['time','Horário *','time']])field(dates,label,type,r[key],v=>{r[key]=v;change();});const itinerary=document.createElement('div');itinerary.className='client-wizard-box client-itinerary';fields.append(itinerary);field(itinerary,'Origem *','text',r.origin,v=>{r.origin=v;change();}).parentElement.classList.add('client-point-label','origin');
-      const button=(parent,label,fn)=>{const b=document.createElement('button');b.type='button';b.textContent=label;b.onclick=()=>{if(isOwner()&&renderId===revision)fn();};parent.append(b);return b;};
-      r.stops.forEach((stop,i)=>{const group=document.createElement('fieldset');const legend=document.createElement('legend');legend.textContent=`Parada ${i+1}`;group.append(legend);field(group,'Endereço','text',stop.address,v=>{stop.address=v;change();});const minutes=field(group,'Permanência (minutos)','number',stop.minutes,v=>{stop.minutes=Number(v);change();});minutes.min=10;minutes.max=360;minutes.step=10;const controls=document.createElement('div');controls.className='owner-dispatch-actions';const move=delta=>{[r.stops[i],r.stops[i+delta]]=[r.stops[i+delta],r.stops[i]];change();render();};button(controls,'Subir',()=>move(-1)).disabled=i===0;button(controls,'Descer',()=>move(1)).disabled=i===r.stops.length-1;button(controls,'Excluir',()=>{r.stops.splice(i,1);change();render();});group.append(controls);itinerary.append(group);});
-      const addStop=button(itinerary,'+ Adicionar parada',()=>{r.stops.push({address:'',minutes:10});change();render();});addStop.className='back owner-dispatch-add-stop';addStop.disabled=r.stops.length>=8;field(itinerary,'Destino *','text',r.destination,v=>{r.destination=v;change();}).parentElement.classList.add('client-point-label','destination');field(fields,'Informações complementares','textarea',r.notes,v=>{r.notes=v;change();});
-      button(fields,'Calcular distância',async()=>{if(!validateRoute(r)){status.textContent='Preencha os campos obrigatórios e confira as paradas.';return;}const token=++request;r.distance=null;save();status.textContent='Calculando rota…';try{const result=await calculateRoute(structuredClone(r),window.tsRouteServices);if(token!==request||renderId!==revision||!isOwner())return;r.distance=result;save();}catch{if(token===request&&renderId===revision&&isOwner())status.textContent='Não foi possível calcular a rota. Tente novamente.';}});
-      fields.append(status);card.append(fields);refresh();next.onclick=()=>{if(isOwner()){draft.next((_,v)=>validateRoute(v)&&!!v.distance);render();}};
+      const current=()=>isOwner()&&renderId===revision;
+      const save=()=>{if(current())draft.save(r);};
+      const change=(route=true)=>{request++;if(route)r.distance=null;save();next.disabled=!validateRoute(r);status.textContent='';};
+      const field=(parent,label,value,placeholder,update)=>{const l=document.createElement('label');const input=document.createElement('input');input.id='ownerRoute'+(++fieldId);l.htmlFor=input.id;l.textContent=label;input.value=value||'';input.placeholder=placeholder;input.oninput=()=>update(input.value);parent.append(l,input);return l;};
+      let fieldId=0;
+      const service=document.createElement('p');service.className='client-wizard-service';service.textContent=data[0].service;card.append(service);
+      const dates=document.createElement('div');dates.className='ts315-grid';card.append(dates);
+      for(const [key,label,type,glyph,placeholder] of [['date','Data *','date','calendar','DD/MM/AAAA'],['time','Horário *','time','clock','HH:MM']]){
+        const group=document.createElement('div');const l=document.createElement('label');l.textContent=label;l.htmlFor='ownerRoute'+key;const wrap=document.createElement('div');wrap.className='client-datetime';const text=document.createElement('span');const glyphEl=document.createElement('i');glyphEl.innerHTML=icon(glyph);const input=document.createElement('input');input.id=l.htmlFor;input.type=type;input.value=r[key]||'';const draw=()=>text.textContent=input.value?(key==='date'?input.value.split('-').reverse().join('/'):input.value):placeholder;draw();input.oninput=()=>{r[key]=input.value;draw();change(false);};wrap.append(text,glyphEl,input);group.append(l,wrap);dates.append(group);
+      }
+      const itinerary=document.createElement('div');itinerary.className='client-wizard-box client-itinerary';card.append(itinerary);
+      field(itinerary,'Origem *',r.origin,'Endereço da origem',v=>{r.origin=v;change();}).className='client-point-label origin';
+      r.stops.forEach((stop,i)=>{const group=document.createElement('div');group.className='ts315-stop';const l=document.createElement('label');l.textContent=`Parada ${i+1}`;const line=document.createElement('div');line.className='client-wizard-stop-line';const input=document.createElement('input');input.value=stop.address;input.placeholder='Endereço da parada';const remove=document.createElement('button');remove.type='button';remove.className='client-text-button';remove.setAttribute('aria-label','Remover parada');remove.innerHTML=icon('close');remove.onclick=()=>{r.stops.splice(i,1);change();render();};line.append(input,remove);const duration=document.createElement('div');duration.hidden=!stop.address.trim();const dl=document.createElement('label');dl.textContent='Tempo de parada *';const select=document.createElement('select');for(let n=10;n<=360;n+=10){const o=document.createElement('option');o.value=n;o.textContent=n+' min';select.append(o);}select.value=stop.minutes;select.onchange=()=>{stop.minutes=Number(select.value);change();};input.oninput=()=>{stop.address=input.value;duration.hidden=!input.value.trim();change();};duration.append(dl,select);group.append(l,line,duration);itinerary.append(group);});
+      const add=document.createElement('button');add.type='button';add.className='back owner-dispatch-add-stop';add.textContent='+ Adicionar parada';add.hidden=r.stops.length>=8;add.onclick=()=>{r.stops.push({address:'',minutes:10});change();render();};itinerary.append(add);
+      field(itinerary,'Destino *',r.destination,'Endereço do destino',v=>{r.destination=v;change();}).className='client-point-label destination';
+      card.append(status);next.disabled=!validateRoute(r);next.onclick=async()=>{if(!current()||!validateRoute(r))return;const token=++request;next.disabled=true;status.textContent='Calculando trajeto…';try{const distance=r.distance||await calculateRoute(structuredClone(r),window.tsRouteServices);if(token!==request||!current())return;r.distance=distance;save();draft.next((_,v)=>validateRoute(v)&&!!v.distance);render();}catch{if(token===request&&current()){status.textContent='Não foi possível calcular o trajeto. Confira os endereços e avance novamente.';next.disabled=false;}}};
     }else if(step===2){
       const boarding={passengers:1,luggage:0,flight:'',notes:'',specialNeeds:'',...data[2]};
       const fields=document.createElement('div');fields.className='owner-dispatch-fields';
@@ -79,21 +85,21 @@ export function installOwnerDispatch({isOwner,searchClients,loadCommission,loadA
       const current=()=>isOwner()&&renderId===revision;
       const refresh=()=>{next.disabled=!validateBoarding(boarding,maxPassengers,maxLuggage);};
       const inputs={};const counters=document.createElement('div');counters.className='ts315-grid';fields.append(counters);
-      for(const [key,label,type] of [['passengers','Quantidade de passageiros','number'],['luggage','Quantidade de bagagens','number'],['flight','Número do voo (se aplicável)','text'],['notes','Observações do serviço','textarea'],['specialNeeds','Necessidades especiais (se aplicável)','textarea']]){
+      for(const [key,label,type] of [['passengers','Passageiros *','number'],['luggage','Bagagens *','number'],['flight','Número do voo (opcional)','text'],['notes','Observações (opcional)','textarea']]){
         const wrap=document.createElement('label');wrap.textContent=label;
         const el=document.createElement(type==='textarea'?'textarea':'input');if(type!=='textarea')el.type=type;
-        el.value=boarding[key]??'';inputs[key]=el;
+        el.value=boarding[key]??'';inputs[key]=el;if(key==='flight'){el.maxLength=10;el.placeholder='Ex.: G3 1234';el.style.maxWidth='12ch';}
         if(type==='number'){el.min=key==='passengers'?1:0;el.step=1;if(key==='luggage')el.max=maxLuggage;}
         el.oninput=()=>{if(!current())return;boarding[key]=type==='number'?(el.value===''?null:Number(el.value)):el.value;draft.save(boarding);refresh();};
         if(type==='number'){const counter=document.createElement('div');counter.className='client-counter';for(const delta of [-1,1]){const b=document.createElement('button');b.type='button';b.textContent=delta<0?'−':'+';b.setAttribute('aria-label',(delta<0?'Diminuir ':'Aumentar ')+label);b.onclick=()=>{const n=Number(el.value)+delta;if(n>=Number(el.min)&&(!el.max||n<=Number(el.max))){el.value=n;el.oninput();}};if(delta<0)counter.append(b,el);else counter.append(b);}wrap.append(counter);counters.append(wrap);}else{wrap.append(el);fields.append(wrap);}
       }
       const retry=document.createElement('button');retry.type='button';retry.textContent='Consultar regras de embarque';
-      const load=async()=>{if(!current())return;maxPassengers=null;refresh();retry.disabled=true;status.textContent='Consultando regras de embarque…';try{
+      const load=async()=>{if(!current())return;maxPassengers=null;refresh();retry.disabled=true;status.textContent='';try{
         const rules=await window.ts315LoadDispatchRules();if(!current())return;
         const limit=Number(rules?.booking_max_passengers);if(!Number.isSafeInteger(limit)||limit<1)throw new Error('Limite indisponível');
-        maxPassengers=limit;inputs.passengers.max=limit;status.textContent=`Limite da reserva: ${limit} passageiros. A capacidade do veículo será conferida na designação.`;
-      }catch{if(current())status.textContent='Regras indisponíveis. Consulte novamente para continuar.';}finally{if(current()){retry.disabled=false;refresh();}}};
-      retry.onclick=load;fields.append(status,retry);card.append(fields);draft.save(boarding);refresh();load();
+        maxPassengers=limit;inputs.passengers.max=limit;status.textContent='';
+      }catch{if(current())status.textContent='Não foi possível carregar os limites. Volte e tente novamente.';}finally{if(current()){retry.disabled=false;refresh();}}};
+      retry.onclick=load;fields.append(status);card.append(fields);draft.save(boarding);refresh();load();
       next.onclick=()=>{if(current()){draft.next((_,v)=>validateBoarding(v,maxPassengers,maxLuggage));render();}};
     }else if(step===3){
       const p={mode:'external',clientId:null,contractor:{country:'BR'},passenger:{country:'BR'},samePassenger:true,source:'',...data[3]};
@@ -104,7 +110,7 @@ export function installOwnerDispatch({isOwner,searchClients,loadCommission,loadA
       const refresh=()=>{next.disabled=!lib||!validParty(p,lib);};
       const save=()=>{if(current()){draft.save(p);refresh();}};
       const field=(label,type,value,change,options)=>{const wrap=document.createElement('label');wrap.textContent=label;const el=document.createElement(options?'select':type==='textarea'?'textarea':'input');if(options){for(const [v,t] of options){const o=document.createElement('option');o.value=v;o.textContent=t;el.append(o);}}else if(type!=='textarea')el.type=type;el.value=value??'';el.oninput=()=>{if(current())change(el.value);};wrap.append(el);fields.append(wrap);return el;};
-      field('Tipo de contratante','',p.mode,v=>{p.mode=v;p.clientId=null;p.contractor={country:'BR'};save();render();},[['external','Contratante externo'],['registered','Cliente cadastrado']]);
+      field('Cliente','',p.mode,v=>{p.mode=v;p.clientId=null;p.contractor={country:'BR'};save();render();},[['external','Novo cliente'],['registered','Cliente cadastrado']]);
       if(p.mode==='registered'){
         const query=field('Buscar cliente por nome','search','',()=>{});
         const results=document.createElement('div');const search=document.createElement('button');search.type='button';search.textContent='Buscar cliente';
@@ -113,9 +119,9 @@ export function installOwnerDispatch({isOwner,searchClients,loadCommission,loadA
       }
       fields.append(status);card.append(fields);
       loadPhoneLibrary().then(library=>{if(!current())return;lib=library;const names=new Intl.DisplayNames(['pt-BR'],{type:'region'});const countries=lib.getCountries().map(c=>[c,`${names.of(c)} (+${lib.getCountryCallingCode(c)})`]).sort((a,b)=>a[1].localeCompare(b[1],'pt-BR'));
-        const contact=(prefix,c)=>{field(prefix+' — Nome','text',c.name,v=>{c.name=v;save();});field(prefix+' — País e DDI','',c.country,v=>{c.country=v;save();},countries);field(prefix+' — Telefone','tel',c.phone,v=>{c.phone=v;save();});field(prefix+' — E-mail (opcional)','email',c.email,v=>{c.email=v;save();});};
-        contact('Contratante',p.contractor);field('O contratante será o passageiro?','',String(p.samePassenger),v=>{p.samePassenger=v==='true';save();render();},[['true','Sim'],['false','Não']]);if(!p.samePassenger)contact('Passageiro',p.passenger);
-        field('Origem da solicitação','',p.source,v=>{p.source=v;save();},[['','Selecione'],...SOURCES.map(v=>[v,v])]);field('Observações internas','textarea',p.internalNotes,v=>{p.internalNotes=v;save();});field('Informações compartilhadas','textarea',p.sharedNotes,v=>{p.sharedNotes=v;save();});save();
+        const c=p.contractor;p.samePassenger=true;
+        field('Nome do cliente *','text',c.name,v=>{c.name=v;save();});field('País e DDI','',c.country,v=>{c.country=v;save();},countries);field('Telefone *','tel',c.phone,v=>{c.phone=v;save();});
+        field('Origem da solicitação','',p.source,v=>{p.source=v;save();},[['','Selecione'],...SOURCES.map(v=>[v,v])]);save();
       }).catch(()=>{if(current())status.textContent='Validação de telefone indisponível. Volte e tente novamente.';});
       next.onclick=()=>{if(current()&&lib){draft.next((_,v)=>validParty(v,lib));render();}};
     }else if(step===4){

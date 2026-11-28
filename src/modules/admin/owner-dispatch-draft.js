@@ -1,6 +1,6 @@
 // Rascunho local, sem persistência ou efeitos financeiros. A autorização e a
 // confirmação de reservas serão responsabilidade do servidor.
-export const DISPATCH_STEPS = Object.freeze(['Serviço','Trajeto','Embarque','Contratante e passageiro','Valores','Pagamento','Designação','Revisão e confirmação']);
+export const DISPATCH_STEPS = Object.freeze(['Serviço','Trajeto','Embarque','Identificação do cliente','Valores','Pagamento','Designação','Revisão e confirmação']);
 export function createDispatchDraft() {
   let step = 0, editing = false;
   const data = Array.from({length: 7}, () => ({}));

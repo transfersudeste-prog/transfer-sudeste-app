@@ -399,8 +399,8 @@ export function createClient({runtime, $, BASE, KEY, bookingDate, bookingMoney, 
     <button type="button" class="client-text-button" aria-label="Remover parada">${icon('close')}</button>
    </div>
    <div data-stop-duration${address?'':' class="hidden"'}>
-    <label for="ts315StopMinutes${num}">Minutos de parada *</label>
-    <input id="ts315StopMinutes${num}" data-stop-minutes type="number" min="1" step="1" required>
+    <label for="ts315StopMinutes${num}">Tempo de parada *</label>
+    <select id="ts315StopMinutes${num}" data-stop-minutes required><option value="">Selecione</option>${Array.from({length:36},(_,i)=>`<option value="${(i+1)*10}">${(i+1)*10} min</option>`).join('')}</select>
    </div>`;
   const addressField=row.querySelector('[data-stop-address]');
   addressField.value=address;
@@ -593,7 +593,7 @@ export function createClient({runtime, $, BASE, KEY, bookingDate, bookingMoney, 
     wizardRow('Distância',estimate.route.distance_km.toLocaleString('pt-BR',{maximumFractionDigits:1})+' km');
   $('ts315Summary').innerHTML=reviewSection('Transfer',1,itinerary)+reviewSection('Embarque',2,
    wizardRow('Passageiros',data.passengers)+wizardRow('Bagagens',data.luggage)+wizardRow('Voo',data.flight_number||'Não informado')+
-   wizardRow('Observações',data.notes||'Nenhuma'));
+   wizardRow('Observações',data.notes||'Nenhuma'))+wizardPrice('Valor total',estimate.total);
   $('ts315Confirmation').innerHTML=reviewSection('Passageiro',4,
    wizardRow('Nome',data.passenger_name)+wizardRow('Telefone',data.passenger_phone)+
    (data.booking_for_other_person&&data.passenger_email?wizardRow('E-mail',data.passenger_email):''))+
