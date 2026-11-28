@@ -18,33 +18,46 @@ concurrency:
 jobs:
   atualizar:
     runs-on: ubuntu-latest
+
     steps:
       - uses: actions/checkout@v4
 
-      - name: Backup
+      - name: Atualizar arquivos
         run: |
-          git branch backup/$(date -u +%Y%m%d-%H%M%S)
-          git push origin --all
-
-      - name: Extrair arquivos
-        run: |
-          unzip -t atualizacao.zip
-          unzip -o atualizacao.zip
-          rm atualizacao.zip
-          test -f index.html
-
-      - name: Registrar atualizacao
-        run: |
-          git config user.name "Transfer Sudeste"
-          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          git add -A
-          git commit -m "Atualizacao automatica do aplicativo"
-          git push origin main
+          if [ -f atualizacao.zip ]; then
+            backup="backup/$(date -u +%Y%m%d-%H%M%S)"
+            git branch "$backup"
+            git push origin "$backup"
+            unzip -t atualizacao.zip
+            unzip -o atualizacao.zip
+            rm atualizacao.zip
+            test -f index.html
+            git config user.name "Transfer Sudeste"
+            git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+            git add -A
+            git commit -m "Atualizacao automatica do aplicativo"
+            git push origin main
+          fi
 
       - uses: actions/configure-pages@v5
 
       - uses: actions/upload-pages-artifact@v3
         with:
+          name: github-pages
           path: .
+          retention-days: 7
 
-      - uses: actions/deploy-pages@v4
+  publicar:
+    needs: atualizar
+    runs-on: ubuntu-latest
+
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+
+    steps:
+      - name: Publicar aplicativo
+        id: deployment
+        uses: actions/deploy-pages@v4
+        with:
+          artifact_name: github-pages
