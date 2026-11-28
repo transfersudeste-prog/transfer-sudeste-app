@@ -234,3 +234,15 @@ html[data-adm-geral-layout][data-adm-geral-keyboard] :is(#ts315Dialog, .adm-gera
 #ownerDispatch[data-screen="1"] .client-itinerary {display:block;}
 #ownerDispatch[data-screen="1"] .client-datetime input {margin:0;}
 #ownerDispatch[data-screen="1"] .ts315-stop [hidden] {display:none!important;}
+#ownerDispatch .owner-party-modes {display:grid;grid-template-columns:1fr 1fr 44px;gap:6px;align-items:stretch;}
+#ownerDispatch .owner-party-modes button {font-size:12px;line-height:1.2;padding:6px;}
+#ownerDispatch .owner-party-modes svg,#ownerDispatch .owner-value-total svg {width:20px;height:20px;vertical-align:middle;}
+#ownerDispatch .owner-party-phone {display:grid;grid-template-columns:100px minmax(0,1fr);gap:8px;}
+#ownerDispatch .owner-party-phone select {padding-inline:8px;font-size:16px;}
+#ownerDispatch .owner-party-search {display:grid;gap:6px;}
+#ownerDispatch .owner-party-search button {width:100%;margin-top:4px;}
+#ownerDispatch .owner-value-total {text-align:center;border:1px solid #504536;border-radius:12px;padding:16px;background:#111;}
+#ownerDispatch .owner-value-total > div {display:flex;align-items:center;justify-content:center;gap:8px;}
+#ownerDispatch .owner-value-total strong {font-size:28px;color:var(--ts-gold);}
+#ownerDispatch [hidden] {display:none!important;}
+#ownerDispatch input,#ownerDispatch textarea,#ownerDispatch select {font-size:16px;}

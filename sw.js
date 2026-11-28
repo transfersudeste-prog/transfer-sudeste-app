@@ -1,7 +1,7 @@
 // Run tools/update-service-worker.py after changing the application shell or its static resources.
 const VERSION = '31-15-r12';
 // BEGIN GENERATED ASSETS
-const REVISION = '86ddde5ad28fa082';
+const REVISION = '38e8437bf12c2538';
 const ASSETS = {
   "apple-touch-icon.png": "ebeb4909f82d186b93e285f1b152c675306314556f4806805652ec132573fd4d",
   "assets/images/conta-veiculo.svg": "0b9ee58834f467e40ac71c0b4ce1e94328d42a92ada9972d65780760f4396a3f",
@@ -30,7 +30,7 @@ const ASSETS = {
   "icon-512.png": "eac765375bacc6c411ec737cf0e8b466d9d32013e0c3b9ee7b47863c8ac13f56",
   "index.html": "804d3f5a2d302bb34702ac5d6d0410c4f196adb505f8502b2df020e9346bb07f",
   "manifest.webmanifest": "bf0e36f2ede6ba0b2bd69b7f5a1915f285e10a9f7e4f2fab64d934ebe46dd0e2",
-  "src/core/application-legacy.js": "31c08ec40f86771287c554b820f6d6bbf1496d341a07b9f139ef0e422167ed48",
+  "src/core/application-legacy.js": "a52478e1262b7e7b379ec6893e793ff900161bc53c3491290969cba8dd513bb2",
   "src/core/auth/session.js": "1e262ff28ef6eb363f0b6969195d4230dcc73e2a377afbc01eb5538d05df5135",
   "src/core/controls/confirm-delete.js": "46b251acdcb0b0ab9b72e5bdb869f6cc2c254e129996cffd3e6754d4f1af746d",
   "src/core/features.js": "fe251c7cb7f0877a9737a834914790d7e8d896c76404ebcc72c77c90aaacd205",
@@ -56,11 +56,11 @@ const ASSETS = {
   "src/modules/admin/owner-dispatch-review.js": "d8575e55e19c7400e0f801020277a9b8defa83c23449c8f60d9f75ee3ac00cab",
   "src/modules/admin/owner-dispatch-route.js": "60ebf4111868652e06d14fbca93aa70351868998aa8234c4b346e779b0581807",
   "src/modules/admin/owner-dispatch-values.js": "608e487fac7425645a3f4c09421e43440cb0e7c11f79ee847e94f5768cb8d0f1",
-  "src/modules/admin/owner-dispatch-view.js": "c3009543173b20c634fad80ac0415f618edd3d91ddf44d319c7e077f7bb2ed85",
+  "src/modules/admin/owner-dispatch-view.js": "38eca5a64eae612ae677536c3b803b4b804939713990a81e25e725eee744487c",
   "src/modules/admin/owner-navigation.js": "74b28406feb3e6eb7d798aec935047b1890c90f337d65c1d2e934ad0ce958135",
   "src/modules/admin/owner-operations.js": "82c56cc5370e89c78e6e77cd6d60e2993d28bc4127798d3db3ed588b8cade34f",
   "src/modules/admin/owner-period.js": "5624ff319d01e8a7cee37df5e632b2e2d30e9d31d352626082f976b76ca510c0",
-  "src/modules/admin/owner-viewport.js": "bd25044345673f7494b40b004f070edd1510501967faa68a382f779c61f6c77c",
+  "src/modules/admin/owner-viewport.js": "e7f6c5e636860410ca8361d28c79fa8fa22cd4be0672840c6f18ba22501162a0",
   "src/modules/client/index.js": "cd20a25fee68151af6214a66b91900fb19293521b149a3768deb93889895e247",
   "src/modules/client/tracking-eligibility.js": "d0d848a4a319ddb51d59d2713e319ef5b55583f09e5ff3645b15b6797e7659e6",
   "src/modules/driver/dashboard.js": "d58ef052ffae23e119e14e8e84df35d2c805318f206061ebe3e3c6bdc47b0429",
@@ -70,7 +70,7 @@ const ASSETS = {
   "src/shared/components/interface-icons.js": "436e21ba03f47fe2ed1499cffda66db04e949f648d916afa50f8db15f83d67d2",
   "src/shared/components/photo-overlay.js": "2cbc088beffe0b6861efe0d1c2237d57abd5492784452bb42ab45fc03bc80501",
   "src/styles/account-layout.css": "d847749b20daca2a1eadb42df80239b0b63e80ef6972dc498f7637878c3305a3",
-  "src/styles/adm-geral-layout.css": "86815118319f4635eebbb508d0ea0ca903d46dff2869996e74454047f53382d0",
+  "src/styles/adm-geral-layout.css": "777b9421e34961b9de1bda63868d64d1533ab02f9c043d74d9a015d15c6d4d86",
   "src/styles/adm-geral-operations.css": "4936597e45f753a80e5f416c9f6bf376871408b32a7212d92923841a892b4903",
   "src/styles/application.css": "c942d81209b71eaa63d503289ac8a66a4a4784ee706dabc166211dc5b767ed8f",
   "src/styles/client-layout.css": "4651a60707006aa9ea41941205930cf1faeb1f655c03ac199ed9ec956ba0eecd",

@@ -403,15 +403,12 @@ const operations=installOwnerOperations({
  }
 });
 let ownerDispatch;
-try { ownerDispatch=dispatchModule?.installOwnerDispatch({isOwner:()=>admin.isOwner,confirmDispatch:async payload=>{const session=await current();if(!session||!admin.isOwner)throw Error("Sessão indisponível");const result=await req("/rest/v1/rpc/ts_owner_confirm_dispatch",{method:"POST",headers:{Authorization:"Bearer "+session.access_token},body:JSON.stringify(payload)});operations.refreshSoon();return result;},loadAssignmentDrivers:async()=>{const session=await current();if(!session||!admin.isOwner)throw Error('Sessão indisponível.');const headers={Authorization:'Bearer '+session.access_token};const drivers=await req('/rest/v1/rpc/admin_list_drivers',{method:'POST',headers,body:'{}'});if(!admin.isOwner||auth.session?.user?.id!==session.user.id)throw Error('Sessão indisponível.');return drivers.map(d=>({...d,approval_status:'approved',active:true}));},loadCommission:async()=>{const session=await current();if(!session||!admin.isOwner)throw Error("Sessão indisponível.");const rows=await req("/rest/v1/company_settings?select=commission_percentage&id=eq.1",{headers:{Authorization:"Bearer "+session.access_token}});if(!admin.isOwner||auth.session?.user?.id!==session.user.id)throw Error("Sessão indisponível.");return rows[0]?.commission_percentage;},searchClients:async(path,signal)=>{
+try { ownerDispatch=dispatchModule?.installOwnerDispatch({isOwner:()=>admin.isOwner,confirmDispatch:async payload=>{const session=await current();if(!session||!admin.isOwner)throw Error("Sessão indisponível");const result=await req("/rest/v1/rpc/ts_owner_confirm_dispatch",{method:"POST",headers:{Authorization:"Bearer "+session.access_token},body:JSON.stringify(payload)});operations.refreshSoon();return result;},loadAssignmentDrivers:async()=>{const session=await current();if(!session||!admin.isOwner)throw Error('Sessão indisponível.');const headers={Authorization:'Bearer '+session.access_token};const drivers=await req('/rest/v1/rpc/admin_list_drivers',{method:'POST',headers,body:'{}'});if(!admin.isOwner||auth.session?.user?.id!==session.user.id)throw Error('Sessão indisponível.');return drivers.map(d=>({...d,approval_status:'approved',active:true}));},loadCommission:async()=>{const session=await current();if(!session||!admin.isOwner)throw Error("Sessão indisponível.");const settings=await ts315.rpc("ts_get_company_settings");if(!admin.isOwner||auth.session?.user?.id!==session.user.id)throw Error("Sessão indisponível.");return (Array.isArray(settings)?settings[0]:settings)?.commission_percentage;},searchClients:async(path,signal)=>{
  const session=await current();if(!session||!admin.isOwner||signal.aborted)throw Error('Sessão indisponível.');
  const headers={Authorization:'Bearer '+session.access_token};
- const rows=await req(path,{headers,signal});
- const ids=rows.map(r=>r.id).filter(id=>/^[0-9a-f-]{36}$/i.test(id));
- if(!ids.length)return [];
- const roles=await req('/rest/v1/user_roles?select=user_id&role=eq.client&user_id=in.('+ids.join(',')+')',{headers,signal});
- if(!admin.isOwner||auth.session?.user?.id!==session.user.id||signal.aborted)throw Error('Sessão indisponível.');
- const allowed=new Set(roles.map(r=>r.user_id));return rows.filter(r=>allowed.has(r.id));
+ const filter=new URL(path,location.origin).searchParams.get('full_name');
+ const rows=await req('/rest/v1/rpc/ts_owner_search_clients',{method:'POST',headers,signal,body:JSON.stringify({p_pattern:filter.slice(6,-1).replace(/\\([%_*\\])/g,'$1')})});
+ if(!admin.isOwner||auth.session?.user?.id!==session.user.id||signal.aborted)throw Error('Sessão indisponível.');return rows;
 }}); } catch(error) { console.error('Despacho manual',error); }
 if(!ownerDispatch){
  const notice=document.createElement('p'); notice.id='ownerDispatchUnavailable'; notice.className='card'; notice.hidden=true; notice.textContent='Despacho manual indisponível. Atualize o aplicativo e tente novamente.'; $('wizardCard').before(notice);
@@ -448,6 +445,14 @@ window.ts315LoadDispatchRules=async()=>{
  })();
  dispatchRulesRequest={uid,promise};
  return promise;
+};
+window.tsOwnerDispatchQuote=async(route,passengers)=>{
+ if(!admin.isOwner)throw Error('Sessão administrativa indisponível.');
+ const params=Object.fromEntries(Object.entries(route).map(([key,val])=>['p_'+key,val]));
+ const result=await ts315.rpc('ts_calculate_transfer_quote',{...params,p_passengers:passengers});
+ const q=Array.isArray(result)?result[0]:result;
+ if(q?.requires_quote||q?.requires_custom_quote)throw Error('Trajeto requer cotação personalizada.');
+ return {total:q?.total_amount};
 };
 window.ts315DispatchQuote=async(route,passengers)=>{
  if(!admin.allowed||!route)return null;
