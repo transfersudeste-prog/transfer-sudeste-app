@@ -113,14 +113,14 @@ body { background: var(--ts-bg); }
 }
 .client-reservation-period button { min-height: 41px; font-size: .78rem; }
 .client-reservation-period button[aria-pressed=true] { color: #11100e; background: var(--ts-gold); }
-#ts315Form {
+:is(#ts315Form,#ownerDispatch) {
   margin: 0;
   padding: 15px 14px 15px;
   border: none;
   border-radius: 0;
   background: transparent;
 }
-#ts315Form .client-wizard-heading {
+:is(#ts315Form,#ownerDispatch) .client-wizard-heading {
   display: flex;
   align-items: baseline;
   justify-content: space-between;
@@ -130,18 +130,18 @@ body { background: var(--ts-bg); }
   font-weight: 650;
   font-size: .79rem;
 }
-#ts315Form h1 {
+:is(#ts315Form,#ownerDispatch) h1 {
   margin: 0 0 15px;
   font-size: clamp(1.26rem, 5.55vw, 1.65rem);
   line-height: 1.18;
   letter-spacing: -.028em;
   overflow-wrap: anywhere;
 }
-#ts315Form h1:focus { outline: none; }
-#ts315Progress { margin: 12px 0 15px; gap: 5px; }
-#ts315Progress i { height: 4px; background: #393939; }
-#ts315Progress i.done { background: var(--ts-gold); }
-#ts315Form .choice {
+:is(#ts315Form,#ownerDispatch) h1:focus { outline: none; }
+:is(#ts315Progress,.owner-dispatch-progress) { margin: 12px 0 15px; gap: 5px; }
+:is(#ts315Progress,.owner-dispatch-progress) i { height: 4px; background: #393939; }
+:is(#ts315Progress,.owner-dispatch-progress) i.done { background: var(--ts-gold); }
+:is(#ts315Form,#ownerDispatch) .choice {
   display: grid !important;
   grid-template-columns: auto minmax(0, 1fr);
   min-height: 47px;
@@ -154,10 +154,10 @@ body { background: var(--ts-bg); }
   font-weight: 500;
   font-size: .96rem;
 }
-#ts315Form .choice:last-child { margin-bottom: 0 !important; }
-#ts315Form .choice.selected { color: var(--ts-gold); background: var(--ts-warm); border-color: var(--ts-gold); }
-#ts315Form .choice:has(input:disabled) { cursor: default; opacity: 1; }
-#ts315Form .choice input[type=radio] {
+:is(#ts315Form,#ownerDispatch) .choice:last-child { margin-bottom: 0 !important; }
+:is(#ts315Form,#ownerDispatch) .choice.selected { color: var(--ts-gold); background: var(--ts-warm); border-color: var(--ts-gold); }
+:is(#ts315Form,#ownerDispatch) .choice:has(input:disabled) { cursor: default; opacity: 1; }
+:is(#ts315Form,#ownerDispatch) .choice input[type=radio] {
   appearance: none;
   -webkit-appearance: none;
   padding: 0;
@@ -170,32 +170,32 @@ body { background: var(--ts-bg); }
   color: inherit;
   opacity: 1;
 }
-#ts315Form .choice input[type=radio]:checked { background: radial-gradient(circle, currentColor 50%, transparent 54%); }
-#ts315Form .choice:has(input:focus-visible) { outline: 2px solid var(--ts-gold); outline-offset: 2px; }
-#ts315Form .wizard-actions { display: grid; grid-template-columns: minmax(0,.62fr) minmax(0,1fr); margin-top: 19px; }
-#ts315Form .wizard-actions:has(#ts315Back.hidden) { display: block; margin-top: 12px; }
-#ts315Form #ts315Next, .ts315-page button.primary, .ts315-page .client-company-cta {
+:is(#ts315Form,#ownerDispatch) .choice input[type=radio]:checked { background: radial-gradient(circle, currentColor 50%, transparent 54%); }
+:is(#ts315Form,#ownerDispatch) .choice:has(input:focus-visible) { outline: 2px solid var(--ts-gold); outline-offset: 2px; }
+:is(#ts315Form,#ownerDispatch) .wizard-actions { display: grid; grid-template-columns: minmax(0,.62fr) minmax(0,1fr); margin-top: 19px; }
+:is(#ts315Form,#ownerDispatch) .wizard-actions:has(:is(#ts315Back,.owner-dispatch-back).hidden) { display: block; margin-top: 12px; }
+:is(#ts315Form,#ownerDispatch) :is(#ts315Next,.owner-dispatch-primary), .ts315-page button.primary, .ts315-page .client-company-cta {
   background: var(--ts-gold);
   color: #11100e;
   border-radius: 10px;
   min-height: 45px;
 }
-#ts315Form #ts315Next, #ts315Form #ts315Back { margin: 0; min-height: 45px; padding: 9px 7px; font-size: .88rem; line-height: 1.2; }
-#ts315Form:not([data-screen="6"]) #ts315Next::after { content: ' ›'; }
-#ts315Form :where(.back, .policy-link), .client-ddi-dialog .back {
+:is(#ts315Form,#ownerDispatch) :is(#ts315Next,.owner-dispatch-primary), :is(#ts315Form,#ownerDispatch) :is(#ts315Back,.owner-dispatch-back) { margin: 0; min-height: 45px; padding: 9px 7px; font-size: .88rem; line-height: 1.2; }
+#ts315Form:not([data-screen="6"]) #ts315Next::after, #ownerDispatch:not([data-screen="7"]) .owner-dispatch-primary::after { content: ' ›'; }
+:is(#ts315Form,#ownerDispatch) :where(.back, .policy-link), .client-ddi-dialog .back {
   color: var(--ts-gold);
   background: transparent;
   border: 1px solid #655638;
   border-radius: 10px;
 }
-#ts315Form #ts315Back, #ts315Form #ts315AddStop { font-weight: 750; }
-#ts315Form label:not(.choice):not(.checkrow), .client-wizard-service {
+:is(#ts315Form,#ownerDispatch) :is(#ts315Back,.owner-dispatch-back), :is(#ts315Form,#ownerDispatch) :is(#ts315AddStop,.owner-dispatch-add-stop) { font-weight: 750; }
+:is(#ts315Form,#ownerDispatch) label:not(.choice):not(.checkrow), .client-wizard-service {
   color: #bdb8af;
   font-weight: 500;
   font-size: .84rem;
 }
 .client-wizard-service { margin: 0 0 12px; }
-#ts315Form .wstep input:not([type=radio],[type=checkbox]), #ts315Form .wstep select, #ts315Form .wstep textarea {
+:is(#ts315Form,#ownerDispatch) .wstep input:not([type=radio],[type=checkbox]), :is(#ts315Form,#ownerDispatch) .wstep select, :is(#ts315Form,#ownerDispatch) .wstep textarea {
   color: var(--ts-ink);
   background: #121212;
   border-color: #494439;
@@ -203,9 +203,9 @@ body { background: var(--ts-bg); }
   height: 42px !important;
   font-size: 16px;
 }
-#ts315Form .wstep textarea { height: 70px !important; min-height: 70px !important; }
-#ts315Form .wstep :is(input, select, textarea):focus-visible { border-color: var(--ts-gold); }
-#ts315Form .wstep select, #ts315EditPayment {
+:is(#ts315Form,#ownerDispatch) .wstep textarea { height: 70px !important; min-height: 70px !important; }
+:is(#ts315Form,#ownerDispatch) .wstep :is(input, select, textarea):focus-visible { border-color: var(--ts-gold); }
+:is(#ts315Form,#ownerDispatch) .wstep select, #ts315EditPayment {
   appearance: none;
   -webkit-appearance: none;
   padding-inline-end: 34px !important;
@@ -232,7 +232,7 @@ body { background: var(--ts-bg); }
 .client-datetime > span { overflow: hidden; text-overflow: ellipsis; font-size: .94rem; }
 .client-datetime > i { color: var(--ts-gold); }
 .client-datetime > i svg { width: 14px; height: 14px; }
-#ts315Form .client-datetime input {
+:is(#ts315Form,#ownerDispatch) .client-datetime input {
   position: absolute;
   inset: 0;
   height: 100% !important;
@@ -260,7 +260,7 @@ body { background: var(--ts-bg); }
 .client-wizard-box { padding: 11px; border: 1px solid #37342e; border-radius: 12px; background: #141414; }
 .client-wizard-box h2 { margin: 0 0 9px; font-size: 1rem; }
 .client-itinerary { margin-top: 13px; }
-#ts315Form .client-itinerary > label:first-child { margin-top: 0; }
+:is(#ts315Form,#ownerDispatch) .client-itinerary > label:first-child { margin-top: 0; }
 .client-point-label { display: block; }
 .client-point-label:is(.origin,.destination)::before {
   content: '';
@@ -272,10 +272,10 @@ body { background: var(--ts-bg); }
   border-radius: 50%;
 }
 .client-point-label.destination::before { border-radius: 2px; background: var(--ts-gold); }
-#ts315Form #ts315AddStop { width: 100%; min-height: 40px; margin-top: 9px; }
-#ts315Form .ts315-stop { padding: 0; margin: 8px 0 0; border: 0; }
+:is(#ts315Form,#ownerDispatch) :is(#ts315AddStop,.owner-dispatch-add-stop) { width: 100%; min-height: 40px; margin-top: 9px; }
+:is(#ts315Form,#ownerDispatch) .ts315-stop { padding: 0; margin: 8px 0 0; border: 0; }
 .client-wizard-stop-line { display: grid; grid-template-columns: minmax(0,1fr) 34px; align-items: center; gap: 5px; }
-#ts315Form .client-wizard-stop-line .client-text-button { margin: 0; padding: 0; min-height: 42px; display: grid; place-items: center; }
+:is(#ts315Form,#ownerDispatch) .client-wizard-stop-line .client-text-button { margin: 0; padding: 0; min-height: 42px; display: grid; place-items: center; }
 .client-counter {
   display: grid;
   grid-template-columns: auto minmax(0,1fr) auto;
@@ -295,7 +295,7 @@ body { background: var(--ts-bg); }
   min-height: 30px;
   font-size: 1rem;
 }
-#ts315Form .client-counter input[type=number] {
+:is(#ts315Form,#ownerDispatch) .client-counter input[type=number] {
   appearance: textfield;
   min-height: 30px !important;
   height: 30px !important;

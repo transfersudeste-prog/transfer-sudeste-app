@@ -29,28 +29,28 @@ export function installOwnerDispatch({isOwner,searchClients,loadCommission,loadA
     if (!isOwner()) return;
     const {step,data} = draft.snapshot();
     root.replaceChildren();
-    const heading = document.createElement('h1'); heading.textContent = 'Despacho manual';
-    const subtitle = document.createElement('p'); subtitle.textContent = 'Cadastre uma nova solicitação.';
-    const card = document.createElement('div'); card.className = 'owner-dispatch-card';
-    const line = document.createElement('div'); line.className = 'owner-dispatch-line';
+    root.dataset.screen=String(step);
+    
+    const card = document.createElement('div'); card.className = 'owner-dispatch-body';
+    const line = document.createElement('div'); line.className = 'client-wizard-heading';
     const count = document.createElement('strong'); count.textContent = `Etapa ${step+1} de 8`;
     const name = document.createElement('span'); name.textContent = DISPATCH_STEPS[step]; line.append(count,name);
-    const progress = document.createElement('div'); progress.className = 'owner-dispatch-progress'; progress.setAttribute('role','progressbar'); progress.setAttribute('aria-label','Etapas do despacho'); progress.setAttribute('aria-valuemin','0'); progress.setAttribute('aria-valuemax','8'); progress.setAttribute('aria-valuenow',String(step+1));
+    const progress = document.createElement('div'); progress.className = 'wizard-progress owner-dispatch-progress'; progress.setAttribute('role','progressbar'); progress.setAttribute('aria-label','Etapas do despacho'); progress.setAttribute('aria-valuemin','0'); progress.setAttribute('aria-valuemax','8'); progress.setAttribute('aria-valuenow',String(step+1));
     DISPATCH_STEPS.forEach((_,i)=>{const bar=document.createElement('i'); if(i<=step)bar.className='done';progress.append(bar);});
-    const title=document.createElement('h2');title.textContent=step===0?'Cadastrar despacho manual':DISPATCH_STEPS[step];
-    card.append(line,progress,title);
-    const actions=document.createElement('div');actions.className='owner-dispatch-actions';
-    const back=document.createElement('button');back.type='button';back.textContent='Voltar';back.disabled=step===0;back.onclick=()=>{if(isOwner()){draft.back();render();}};
-    const next=document.createElement('button');next.type='button';next.textContent=draft.snapshot().editing?'Salvar e revisar':'Continuar ›';next.className='owner-dispatch-primary';next.disabled=true;
+    const title=document.createElement('h1');title.textContent=step===0?'Agendar serviço':DISPATCH_STEPS[step];
+    root.append(line,progress,title); card.classList.add('wstep','active');
+    const actions=document.createElement('div');actions.className='wizard-actions';
+    const back=document.createElement('button');back.type='button';back.textContent='Voltar';back.className='back owner-dispatch-back';back.classList.toggle('hidden',step===0);back.disabled=step===0;back.onclick=()=>{if(isOwner()){draft.back();render();}};
+    const next=document.createElement('button');next.type='button';next.textContent=draft.snapshot().editing?'Salvar e revisar':'Avançar';next.className='primary owner-dispatch-primary';next.disabled=true;
     if(step===0){
       const options=categories();
       const selected=options.find(c=>c.enabled&&c.name===data[0].service)||options.find(c=>c.enabled);
       if(selected)draft.save({service:selected.name});
       const group=document.createElement('fieldset');const legend=document.createElement('legend');legend.textContent='Selecione o serviço';group.append(legend);
       for(const category of options){
-        const label=document.createElement('label');label.className='owner-dispatch-choice';
+        const label=document.createElement('label');label.className='choice'+(category.name===selected?.name?' selected':'');
         const input=document.createElement('input');input.type='radio';input.name='ownerDispatchService';input.value=category.name;input.disabled=!category.enabled;input.checked=category.name===selected?.name;
-        const text=document.createElement('span');text.textContent=category.name+(category.enabled?'':' — indisponível');
+        const text=document.createElement('span');text.textContent=category.name;
         input.onchange=()=>{if(isOwner()&&category.enabled){draft.save({service:category.name});render();}};
         label.append(input,text);group.append(label);
       }
@@ -64,10 +64,10 @@ export function installOwnerDispatch({isOwner,searchClients,loadCommission,loadA
       let request=0;
       const change=()=>{request++;r.distance=null;save();};
       const field=(parent,label,type,value,onchange)=>{const wrap=document.createElement('label');wrap.textContent=label;const el=document.createElement(type==='textarea'?'textarea':'input');if(type!=='textarea')el.type=type;el.value=value??'';el.oninput=()=>onchange(el.value);wrap.append(el);parent.append(wrap);return el;};
-      for(const [key,label,type] of [['date','Data','date'],['time','Horário','time'],['origin','Origem','text'],['destination','Destino','text'],['notes','Informações complementares','textarea']])field(fields,label,type,r[key],v=>{r[key]=v;change();});
+      const dates=document.createElement('div');dates.className='ts315-grid';fields.append(dates);for(const [key,label,type] of [['date','Data *','date'],['time','Horário *','time']])field(dates,label,type,r[key],v=>{r[key]=v;change();});const itinerary=document.createElement('div');itinerary.className='client-wizard-box client-itinerary';fields.append(itinerary);field(itinerary,'Origem *','text',r.origin,v=>{r.origin=v;change();}).parentElement.classList.add('client-point-label','origin');
       const button=(parent,label,fn)=>{const b=document.createElement('button');b.type='button';b.textContent=label;b.onclick=()=>{if(isOwner()&&renderId===revision)fn();};parent.append(b);return b;};
-      r.stops.forEach((stop,i)=>{const group=document.createElement('fieldset');const legend=document.createElement('legend');legend.textContent=`Parada ${i+1}`;group.append(legend);field(group,'Endereço','text',stop.address,v=>{stop.address=v;change();});const minutes=field(group,'Permanência (minutos)','number',stop.minutes,v=>{stop.minutes=Number(v);change();});minutes.min=10;minutes.max=360;minutes.step=10;const controls=document.createElement('div');controls.className='owner-dispatch-actions';const move=delta=>{[r.stops[i],r.stops[i+delta]]=[r.stops[i+delta],r.stops[i]];change();render();};button(controls,'Subir',()=>move(-1)).disabled=i===0;button(controls,'Descer',()=>move(1)).disabled=i===r.stops.length-1;button(controls,'Excluir',()=>{r.stops.splice(i,1);change();render();});group.append(controls);fields.append(group);});
-      button(fields,'+ Adicionar parada',()=>{r.stops.push({address:'',minutes:10});change();render();}).disabled=r.stops.length>=8;
+      r.stops.forEach((stop,i)=>{const group=document.createElement('fieldset');const legend=document.createElement('legend');legend.textContent=`Parada ${i+1}`;group.append(legend);field(group,'Endereço','text',stop.address,v=>{stop.address=v;change();});const minutes=field(group,'Permanência (minutos)','number',stop.minutes,v=>{stop.minutes=Number(v);change();});minutes.min=10;minutes.max=360;minutes.step=10;const controls=document.createElement('div');controls.className='owner-dispatch-actions';const move=delta=>{[r.stops[i],r.stops[i+delta]]=[r.stops[i+delta],r.stops[i]];change();render();};button(controls,'Subir',()=>move(-1)).disabled=i===0;button(controls,'Descer',()=>move(1)).disabled=i===r.stops.length-1;button(controls,'Excluir',()=>{r.stops.splice(i,1);change();render();});group.append(controls);itinerary.append(group);});
+      const addStop=button(itinerary,'+ Adicionar parada',()=>{r.stops.push({address:'',minutes:10});change();render();});addStop.className='back owner-dispatch-add-stop';addStop.disabled=r.stops.length>=8;field(itinerary,'Destino *','text',r.destination,v=>{r.destination=v;change();}).parentElement.classList.add('client-point-label','destination');field(fields,'Informações complementares','textarea',r.notes,v=>{r.notes=v;change();});
       button(fields,'Calcular distância',async()=>{if(!validateRoute(r)){status.textContent='Preencha os campos obrigatórios e confira as paradas.';return;}const token=++request;r.distance=null;save();status.textContent='Calculando rota…';try{const result=await calculateRoute(structuredClone(r),window.tsRouteServices);if(token!==request||renderId!==revision||!isOwner())return;r.distance=result;save();}catch{if(token===request&&renderId===revision&&isOwner())status.textContent='Não foi possível calcular a rota. Tente novamente.';}});
       fields.append(status);card.append(fields);refresh();next.onclick=()=>{if(isOwner()){draft.next((_,v)=>validateRoute(v)&&!!v.distance);render();}};
     }else if(step===2){
@@ -78,14 +78,14 @@ export function installOwnerDispatch({isOwner,searchClients,loadCommission,loadA
       const maxLuggage=Number(legacy.querySelector('#luggage')?.max||100);
       const current=()=>isOwner()&&renderId===revision;
       const refresh=()=>{next.disabled=!validateBoarding(boarding,maxPassengers,maxLuggage);};
-      const inputs={};
+      const inputs={};const counters=document.createElement('div');counters.className='ts315-grid';fields.append(counters);
       for(const [key,label,type] of [['passengers','Quantidade de passageiros','number'],['luggage','Quantidade de bagagens','number'],['flight','Número do voo (se aplicável)','text'],['notes','Observações do serviço','textarea'],['specialNeeds','Necessidades especiais (se aplicável)','textarea']]){
         const wrap=document.createElement('label');wrap.textContent=label;
         const el=document.createElement(type==='textarea'?'textarea':'input');if(type!=='textarea')el.type=type;
         el.value=boarding[key]??'';inputs[key]=el;
         if(type==='number'){el.min=key==='passengers'?1:0;el.step=1;if(key==='luggage')el.max=maxLuggage;}
         el.oninput=()=>{if(!current())return;boarding[key]=type==='number'?(el.value===''?null:Number(el.value)):el.value;draft.save(boarding);refresh();};
-        wrap.append(el);fields.append(wrap);
+        if(type==='number'){const counter=document.createElement('div');counter.className='client-counter';for(const delta of [-1,1]){const b=document.createElement('button');b.type='button';b.textContent=delta<0?'−':'+';b.setAttribute('aria-label',(delta<0?'Diminuir ':'Aumentar ')+label);b.onclick=()=>{const n=Number(el.value)+delta;if(n>=Number(el.min)&&(!el.max||n<=Number(el.max))){el.value=n;el.oninput();}};if(delta<0)counter.append(b,el);else counter.append(b);}wrap.append(counter);counters.append(wrap);}else{wrap.append(el);fields.append(wrap);}
       }
       const retry=document.createElement('button');retry.type='button';retry.textContent='Consultar regras de embarque';
       const load=async()=>{if(!current())return;maxPassengers=null;refresh();retry.disabled=true;status.textContent='Consultando regras de embarque…';try{
@@ -170,11 +170,11 @@ export function installOwnerDispatch({isOwner,searchClients,loadCommission,loadA
       const issues=reviewIssues(data);
       back.disabled=!!submitted;
       for(const [index,heading,rows] of reviewCards(data)){
-        const section=document.createElement('section');section.className='owner-dispatch-card';
-        const header=document.createElement('div');header.className='owner-dispatch-line';
+        const section=document.createElement('section');section.className='client-wizard-box client-review-box';
+        const header=document.createElement('div');header.className='client-review-heading';
         const h=document.createElement('h2');h.textContent=heading;
         const edit=document.createElement('button');edit.type='button';edit.textContent='Editar';edit.setAttribute('aria-label','Editar '+heading);edit.disabled=!!submitted;edit.onclick=()=>{if(!submitted&&isOwner()&&renderId===revision){draft.edit(index);render();}};header.append(h,edit);section.append(header);
-        for(const [label,value] of rows){const p=document.createElement('p');p.textContent=label+': '+(value??'Não informado');section.append(p);}
+        for(const [label,value] of rows){const p=document.createElement('div');p.className='client-wizard-row';const k=document.createElement('span');k.textContent=label;const v=document.createElement('strong');v.textContent=value??'Não informado';p.append(k,v);section.append(p);}
         if(issues.includes(index)){const warning=document.createElement('p');warning.textContent='Requer nova conferência.';section.append(warning);}
         card.append(section);
       }
@@ -201,7 +201,7 @@ export function installOwnerDispatch({isOwner,searchClients,loadCommission,loadA
         }).catch(()=>{if(current())note.textContent='Validação de telefone indisponível.';});
       }
     }
-    actions.append(back,next);card.append(actions);root.append(heading,subtitle,card);
+    actions.append(back,next);root.append(card,actions);
   }
   return {
     setRoute(section){searchAbort?.abort();revision++;root.hidden=section!=='despacho'||!isOwner();if(!root.hidden)render();},

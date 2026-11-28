@@ -210,26 +210,23 @@ html[data-adm-geral-layout][data-adm-geral-keyboard] :is(#ts315Dialog, .adm-gera
 
 /* Despacho exclusivo do ADM Geral; o formulário legado permanece intacto. */
 #ownerDispatch[hidden], html[data-adm-geral-layout="despacho"] #wizardCard {display:none!important}
-#ownerDispatch {color:var(--adm-text);font-family:-apple-system,BlinkMacSystemFont,Arial,sans-serif}
-#ownerDispatch h1 {font-size:25px;letter-spacing:-.8px;margin:0 0 6px}
-#ownerDispatch p {color:var(--adm-muted);font-size:13px;line-height:1.5}
-.owner-dispatch-card {background:var(--adm-card);border:1px solid var(--adm-border);border-radius:15px;padding:13px;display:grid;gap:12px}
-.owner-dispatch-line,.owner-dispatch-actions {display:flex;justify-content:space-between;gap:9px;align-items:center}
-.owner-dispatch-line span {color:var(--adm-muted);font-size:13px}
-.owner-dispatch-progress {display:grid;grid-template-columns:repeat(8,minmax(0,1fr));gap:4px}
-.owner-dispatch-progress i {height:4px;background:#39332A;border-radius:4px}
-.owner-dispatch-progress i.done {background:var(--adm-gold)}
-.owner-dispatch-card h2 {font-size:18px;margin:0}
-.owner-dispatch-card fieldset {border:0;padding:0;margin:0;display:grid;gap:9px;min-width:0}
-.owner-dispatch-card legend {color:var(--adm-muted);font-size:12px;margin-bottom:8px}
-.owner-dispatch-choice,.owner-dispatch-actions button {min-height:44px;border:1px solid var(--adm-gold-border);border-radius:10px;background:#191713;color:var(--adm-gold);padding:10px;font:inherit}
-.owner-dispatch-choice {display:flex;align-items:center;gap:10px;margin:0;cursor:pointer}
-.owner-dispatch-choice input {width:18px;height:18px;min-height:0;margin:0;accent-color:#111}
-.owner-dispatch-choice:has(input:checked),.owner-dispatch-actions .owner-dispatch-primary {background:var(--adm-gold);color:#111;font-weight:700}
-.owner-dispatch-choice:has(input:disabled),.owner-dispatch-actions button:disabled {opacity:.55;cursor:not-allowed}
-.owner-dispatch-actions button {flex:1}
-.owner-dispatch-fields {display:grid;gap:12px;min-width:0}
-.owner-dispatch-fields label {display:grid;gap:6px;color:var(--adm-muted);font-size:13px}
-.owner-dispatch-fields input,.owner-dispatch-fields textarea {width:100%;min-width:0;min-height:44px;background:#101010;color:#F4F1EB;border:1px solid #4B4335;border-radius:9px;padding:10px;font:inherit;font-size:16px;color-scheme:dark}
-.owner-dispatch-fields button {min-height:44px;border:1px solid var(--adm-gold-border);border-radius:10px;background:#191713;color:var(--adm-gold);padding:9px;font:inherit}
-.owner-dispatch-fields button:disabled {opacity:.55}
+#ownerDispatch {color:var(--ts-ink);background:var(--ts-panel);border:1px solid var(--ts-border);border-radius:16px;}
+#ownerDispatch .owner-dispatch-body {min-width:0;}
+#ownerDispatch fieldset {border:0;padding:0;margin:0;min-width:0;}
+#ownerDispatch legend {color:var(--ts-muted);font-size:.84rem;margin-bottom:8px;}
+#ownerDispatch .owner-dispatch-fields {display:grid;gap:10px;min-width:0;}
+#ownerDispatch .owner-dispatch-fields label {display:block;margin:0;min-width:0;}
+#ownerDispatch .owner-dispatch-fields :is(input,select,textarea) {display:block;width:100%;min-width:0;margin-top:6px;border-radius:10px;}
+#ownerDispatch .owner-dispatch-fields button:not(.client-counter button),#ownerDispatch .client-review-heading button {min-height:40px;border:1px solid #655638;border-radius:10px;background:transparent;color:var(--ts-gold);padding:8px;font:inherit;}
+#ownerDispatch .owner-dispatch-fields button[aria-pressed=true] {background:var(--ts-warm);border-color:var(--ts-gold);}
+#ownerDispatch .owner-dispatch-actions {display:flex;gap:8px;}
+#ownerDispatch .owner-dispatch-actions button {flex:1;}
+#ownerDispatch button:disabled {opacity:.55;}
+#ownerDispatch .client-counter input {margin:0;}
+#ownerDispatch .client-itinerary {margin:0;display:grid;gap:10px;}
+#ownerDispatch .client-wizard-heading strong {font-weight:650;}
+#ownerDispatch .wizard-progress {grid-template-columns:repeat(8,minmax(0,1fr));}
+#ownerDispatch p[role=status] {color:var(--ts-muted);font-size:.84rem;}
+
+#ownerDispatch .wizard-actions:has(.owner-dispatch-back.hidden) {display:block;}
+#ownerDispatch .wizard-actions .owner-dispatch-primary {width:100%;}

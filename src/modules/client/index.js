@@ -1,3 +1,4 @@
+import {canTrackBooking} from './tracking-eligibility.js';
 import {loadPhoneLibrary} from '../../core/services/phone-library.js';
 import {interfaceIcon as icon} from '../../shared/components/interface-icons.js';
 
@@ -723,7 +724,7 @@ export function createClient({runtime, $, BASE, KEY, bookingDate, bookingMoney, 
  const confirmed=b=>['pending','confirmed','approved','assigned','awaiting_pickup','awaiting_boarding','in_progress'].includes(b.booking_status);
  const started=b=>!!b.started_at||b.booking_status==='in_progress';
  const editable=b=>['pending','confirmed'].includes(b.booking_status)&&!ended(b)&&!started(b);
- const availableForTracking=b=>!ended(b)&&confirmed(b)&&(started(b)||(rulesReady&&Date.now()>=pickup(b)-Number(rules.tracking_release_minutes)*60000));
+ const availableForTracking=b=>canTrackBooking(b,{rulesReady,releaseMinutes:rules.tracking_release_minutes});
  const bookingStatus=b=>{
   if(b.cancelled_at)return 'Cancelada';
   if(ended(b))return statusPt(b.booking_status);
